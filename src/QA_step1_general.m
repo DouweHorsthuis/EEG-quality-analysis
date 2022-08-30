@@ -11,34 +11,37 @@ subject_list = {'10862'};% '10260' '10314' '10508' '10520' '10708' '10769' '1084
 load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\ASSR\'; %will open individual folders based on subject ID
 save_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\test\'; %where will you save the data (something like 'C:\data\')
 binlist_location='C:\Users\dohorsth\Desktop\SFARI Behav\FAST\script\';
+logo_location= 'C:\Users\dohorsth\Documents\GitHub\EEG-quality-analysis\images\';%if you want to add a logo you can add it here if not leave it empty
+logo_filename='CNL_logo.jpeg'; %filename + extention (eg.'CNL_logo.jpeg')
 binlist_name='binlist_ASSR.txt'; %name of the text file with your bins
 rt_binlist = 'binlist_ASSR_resp.txt'; %name of the reaction time binlist
 rt_plot_n=1:4; %which RT bins do you want to plot together (can only plot one group)
 plotting_bins=1:4; %the bins that should become ERPs
 channels_names={'Cz' }; %channels that you want plots for (
-colors={'k-' , 'r-' , 'b-' ,'g-' }; %define colors of your ERPs, add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
-%% paradigm specific information
+colors={'k-' , 'r-' , 'b-' ,'g-' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
 downsample_to=256; % what is the sample rate you want to downsample to
 lowpass_filter_hz=50; %50hz filter
 highpass_filter_hz=1; %1hz filter
 epoch_time = [-100 500];
 baseline_time = [-50 0];
-n_bins=8;% enter here the number of bins in your binlist
+n_bins=4;% enter here the number of bins in your binlist
 %% Questions you need to answer in the command window before starting
 prompt = "What is the paradigm specific name for the bdf files (e.g. fast when the whole file is 10000_fast_1.bdf)?";
 p_name= input(prompt,"s");
-prompt = "What is the eye tracking specific name for the EDF files (e.g. FAST when the whole file is 10000_FAST_1.edf)?";
-et_name= input(prompt,"s");
 prompt = "How many bdf files should be used?";
 n_bdf= input(prompt);
-prompt = "Which channels are bad according to the readme file? write like this: {'fp1' 'o2' 'p1'}";
+prompt = "Which channels are bad according to the readme file? write like this: {'fp1' 'o2' 'p1'}, hit enter if none";
 bad_channels= input(prompt);
 prompt = "Is there a readme file? (yes/no)";
 readme_yn= input(prompt,"s");
 prompt = "Is there Eye tracking? (yes/no)";
 ET_yn= input(prompt,"s");
 
-
+if strcmpi(ET_yn,'yes')
+prompt = "What is the eye tracking specific name for the EDF files (e.g. FAST when the whole file is 10000_FAST_1.edf)?";
+et_name= input(prompt,"s");
+end
+%% start
 for s = 1:length(subject_list)
     fprintf('\n******\nProcessing subject %s\n******\n\n', subject_list{s});
     %% creating the right file names
@@ -317,6 +320,11 @@ for s = 1:length(subject_list)
     print([save_path_indv subject_list{s} '_eyetr'], '-dpng' ,'-r300');
     end
     close all;
+    %creating the text for the reactions
+for i=1:length(ERP.bindescr)
+    rt_string{i}=strjoin({'RT - Average' , ERP.bindescr{i}, num2str(response_avg(i)), 'ms'});
+    amount_string{i}=strjoin({'Amount' , ERP.bindescr{i}, convertStringsToChars(response_amount_final{i})});
+end
     
 end
 %% creating a group file with all info
@@ -335,11 +343,19 @@ for i=1:length(gr_mat)
         save([save_path 'group_info'],'group_info')
     end
 end
+%% creating the PDF file with the summary 
 fig=figure('units','normalized','outerposition',[0 0 1 1]);
 set(gcf,'color',[0.85 0.85 0.85])
+%logo
+if ~isempty(logo_location)
+subplot(5,5,3);
+imshow([logo_location logo_filename]);
+end
+%ERPS
 subplot(5,5,[4:5, 9:10]);
 imshow([save_path_indv subject_list{s} '_erps.png']);
 title('ERPs')
+%information boxes
 annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses;EEG.Medication; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
 annotation('textbox', [0.30, 0.825, 0.1, 0.1], 'String', [EEG.vision_info; EEG.vision; EEG.hearing_info; EEG.hz500; EEG.hz1000; EEG.hz2000; EEG.hz4000]);
 annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
@@ -348,38 +364,38 @@ annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
     "Data deleted: " + num2str(EEG.deleteddata) + "%";...
     "Amount bad chan: " + string(length(EEG.del_chan));...
     "Amount bridged chan: " + string(length(EEG.bridged))]);
-subplot(5,5,3);
+annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
+annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
+annotation('textbox', [0.1, 0.15, 0.1, 0.1], 'String',[EEG.notes])
+%Deleted channels (topoplot if amount is >1)
+subplot(5,5,18);
 imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
 title('Deleted channels')
+%Bridged channels (topoplot if amount is >1)
 subplot(5,5,7);
 imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
 title('Bridged channels')
+%Deleted IC components
 subplot(5,5,8);
 imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
 title('Deleted ICs')
+%Raw data plot
 subplot(5,5, [14:15 19:20]);
 imshow([save_path_indv subject_list{s} '_raw_data.png']);
 title('Overview raw data')
+%RT plot
 subplot(5,5,13)
 boxplot([rt_start, rt_middle, rt_end], 'Labels',{'Start', 'Middle', 'End'})
 title('Reaction time, at the start-middle-end')
 xlabel('Moment trials happened in the paradigm')
 ylabel('Reaction time (ms)')
-%creating the text for the reactions
-for i=1:length(ERP.bindescr)
-    rt_string{i}=strjoin({'RT - Average' , ERP.bindescr{i}, num2str(response_avg(i)), 'ms'});
-    amount_string{i}=strjoin({'Amount' , ERP.bindescr{i}, convertStringsToChars(response_amount_final{i})});
-end
-annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
-annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
-annotation('textbox', [0.1, 0.15, 0.1, 0.1], 'String',['Experiment notes: ' +EEG.notes])
+%ET plot
 if strcmpi(ET_yn,'yes')
     subplot(5,5,[11:12,16:17]);
     imshow([save_path_indv subject_list{s} '_eyetr.png'])
 end
+%Final adjustments for the PDF
 sgtitle(['Quality of ' subject_list{s} 's data while doing ' p_name]);
 set(gcf, 'PaperSize', [16 10]);
 print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpdf') % then print it
-print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpng' ,'-r300') % then print it
 close all
-

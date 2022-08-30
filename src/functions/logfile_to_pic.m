@@ -1,5 +1,32 @@
 function [EEG]= logfile_to_pic(EEG, readme_yn,data_path, save_path_indv, subject)
-%Usage: [will save pictures] = logfile_to_pic(readme_yn,data_path);
+% logfile_to_pic reads a logfile if availible, and adds the data to the EEG
+% file, if logfile not availibe questions will be prompted to get the same info
+% Usage: [EEG] = logfile_to_pic(EEG, readme_yn,data_path, save_path_indv, subject);
+% the structuture EEG will have the following added info:  
+% EEG.notes=Notes from readme file;
+% EEG.vision_info=" Left     Right Both (vision scores)";
+% EEG.vision=Vision scores from readme file
+% EEG.hearing_info=" Frequency Left Right"; 
+% EEG.hz500=Results from readme file 
+% EEG.hz1000=Results from readme file
+% EEG.hz2000=Results from readme file
+% EEG.hz4000=Results from readme file
+% EEG.age=Results from readme file
+% EEG.sex=Results from readme file
+% EEG.date=Results from readme file
+% EEG.Hand=Results from readme file
+% EEG.hearing=Results from readme file
+% EEG.vision=Results from readme file
+% EEG.glasses=Results from readme file
+% EEG.Medication=Results from readme file
+% EEG.Exp=Results from readme file
+% EEG.Externals=Results from readme file
+% EEG.Light=Results from readme file
+% EEG.Screen=Results from readme file
+% EEG.Cap=Results from readme file
+% *note: when "Results from readme file", logfile_to_pic will either find it in the readme file and use it
+% or if it doesn't find it, it will promt for the answer.
+
 data_folder=dir(data_path);
 notes=[];date_1=[]; Age=[]; Sex=[]; Handedness=[]; glasses=[]; Medication=[]; Exp=[]; Externals=[]; Light=[]; Screen=[];Cap=[]; pres_version=[];
 logfile_1=["this is a string to set it up","this is the second string to set it up","this is the 3rd string to set it up","this is the 4rd string to set it up", "this is the last string to set it up"];
@@ -139,11 +166,6 @@ if isempty(notes) || strlength(notes)>500
     notes= input(prompt,"s"); notes=strcat('Notes: ',cellstr(notes));
 end
 
-
-% figure('Renderer', 'painters', 'Position', [10 10 375 225])
-% annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', [date_1; Age; Sex; Handedness; glasses;Medication; Exp;Externals;Light; Screen; Cap;])
-% print([save_path_indv subject '_information'], '-dpng' ,'-r300');
-% close all
 %%
 vision=[];hz500=' 500   Hz:  dB dB ';hz1000=' 1000 Hz:   dB  dB';hz2000=' 2000 Hz:   dB  dB';hz4000=' 4000 Hz:   dB  dB';
 
