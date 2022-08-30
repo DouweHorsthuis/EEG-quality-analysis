@@ -1,8 +1,13 @@
-Readme
-================
-Douwe Horsthuis
-2022-08-30
+---
+title: "Readme"
+author: "Douwe Horsthuis"
+date: "`r Sys.Date()`"
+output: github_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 [![Contributors](https://img.shields.io/github/contributors/DouweHorsthuis/EEG-quality-analysis.svg?style=for-the-badge)](https://github.com/DouweHorsthuis/EEG-quality-analysis/graphs/contributors)
 [![Forks](https://img.shields.io/github/forks/DouweHorsthuis/EEG-quality-analysis.svg?style=for-the-badge)](https://github.com/DouweHorsthuis/EEG-quality-analysis/network/members)
 [![Stargazers](https://img.shields.io/github/stars/DouweHorsthuis/EEG-quality-analysis.svg?style=for-the-badge)](https://github.com/DouweHorsthuis/EEG-quality-analysis/stargazers)
@@ -12,23 +17,17 @@ License](https://img.shields.io/github/license/DouweHorsthuis/EEG-quality-analys
 [![LinkedIn](https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555)](https://www.linkedin.com/in/douwe-horsthuis-725bb9188/)
 
 # EEG qualtiy analysis pipeline
-
-**This EEG pipeline will both pre-process your data and give you a
-quality report afterwards that will look somewhat like this:**
+**This EEG pipeline will both pre-process your data and give you a quality report afterwards that will look somewhat like this:** 
 
 <img src="images/data_quality.png" alt="PNG of the data" align="center" width="1040" height="598"/>  
-Made by [Douwe Horsthuis](https://github.com/DouweHorsthuis/) as part of
-the:  
-<img src="images/CNL_logo.jpeg" alt="Logo" align="center" width="286"/>
+Made by [Douwe Horsthuis](https://github.com/DouweHorsthuis/) as part of the:  
+<img src="images/CNL_logo.jpeg" alt="Logo" align="center" width="286"/>   
+  
+**Table of Contents**
+1. [About the project](#about-the-project)
+2. [The code](#the-code)
 
-**Table of Contents** 1. [About the project](#about-the-project) 2. [The
-code](#the-code)
+## About the project  
+The goal of this project is to have a reliable EEG pipeline that can be used in an objective way to show the quality of a dataset, while potentially also pre-processing EEG data. The main difference between this pipeline and the one it was based on is that this one ends with a PDF file that gives you some insight in the data. ![Click here for an example of what it can look like](images/example_data_quality.pdf)
 
-## About the project
 
-The goal of this project is to have a reliable EEG pipeline that can be
-used in an objective way to show the quality of a dataset, while
-potentially also pre-processing EEG data. The main difference between
-this pipeline and the one it was based on is that this one ends with a
-PDF file that gives you some insight in the data. ![Click here for an
-example of what it can look like](images/example_data_quality.pdf)
