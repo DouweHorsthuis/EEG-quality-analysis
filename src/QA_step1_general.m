@@ -1,30 +1,29 @@
 % EEGLAB merge sets, and creates .set file
 % by Douwe Horsthuis updated on 8/10/2022
-% Specifically for F.A.S.T.
+% 
 % if crash says : Error in A_merge_sets (line 38)
 %            EEG = pop_biosig([data_path  subject_list{s} '_' filename '_' num2str(bdf_bl) '.bdf']);
 % Double check the name you gave, that is where the mistake is
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'10862'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
-load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\ASSR\'; %will open individual folders based on subject ID
-save_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\test\'; %where will you save the data (something like 'C:\data\')
-binlist_location='C:\Users\dohorsth\Desktop\SFARI Behav\FAST\script\';
-logo_location= 'C:\Users\dohorsth\Documents\GitHub\EEG-quality-analysis\images\';%if you want to add a logo you can add it here if not leave it empty
-logo_filename='CNL_logo.jpeg'; %filename + extention (eg.'CNL_logo.jpeg')
-binlist_name='binlist_ASSR.txt'; %name of the text file with your bins
-rt_binlist = 'binlist_ASSR_resp.txt'; %name of the reaction time binlist
-rt_plot_n=1:4; %which RT bins do you want to plot together (can only plot one group)
-plotting_bins=1:4; %the bins that should become ERPs
-channels_names={'Cz' }; %channels that you want plots for (
-colors={'k-' , 'r-' , 'b-' ,'g-' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
-downsample_to=256; % what is the sample rate you want to downsample to
-lowpass_filter_hz=50; %50hz filter
-highpass_filter_hz=1; %1hz filter
-epoch_time = [-100 500];
-baseline_time = [-50 0];
-n_bins=4;% enter here the number of bins in your binlist
+subject_list = {'id'};% The ID for the particpant
+load_path    = ''; %will open individual folders based on subject ID
+save_path    = ''; %where will you save the data (something like 'C:\data\')
+binlist_location='';
+logo_location= '';%if you want to add a logo you can add it here if not leave it empty
+logo_filename=''; %filename + extention (eg.'CNL_logo.jpeg')
+binlist_name=''; %name of the text file with your bins
+rt_binlist = ''; %name of the reaction time binlist
+rt_plot_n=; %which RT bins do you want to plot together (can only plot one group)
+plotting_bins=; %the bins that should become ERPs
+channels_names={}; %channels that you want plots for (
+colors={}; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
+downsample_to=; % what is the sample rate you want to downsample to
+lowpass_filter_hz=; %50hz filter
+highpass_filter_hz=; %1hz filter
+epoch_time = [];
+baseline_time = [];
 %% Questions you need to answer in the command window before starting
 prompt = "What is the paradigm specific name for the bdf files (e.g. fast when the whole file is 10000_fast_1.bdf)?";
 p_name= input(prompt,"s");
