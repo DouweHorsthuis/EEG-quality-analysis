@@ -1,0 +1,16 @@
+bin 1
+object right-side-up
+.{31}
+
+bin 2
+object up-side-down
+.{32}
+
+bin 3
+face right-side-up
+.{21}
+
+bin 4
+face up-side-down
+.{22}
+

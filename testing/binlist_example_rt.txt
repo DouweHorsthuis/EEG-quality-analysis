@@ -1,0 +1,33 @@
+bin 1
+wrong object right-side-up
+.{31}{1:rt<"wrong object right-side-up">}
+
+bin 2
+object up-side-down
+.{32}{1:rt<"object up-side-down">}
+
+bin 3
+face right-side-up
+.{21}{1:rt<"face right-side-up">}
+
+bin 4
+face up-side-down
+.{22}{1:rt<"face up-side-down">}
+
+bin 5
+rp object right-side-up
+.{131}{1:rt<"correct rp/shadow object right-side-up">}
+
+bin 6
+rp object up-side-down
+.{132}{1:rt<"correct rp/shadow object up-side-down">}
+
+
+bin 7
+rp face right-side-up
+.{121}{1:rt<"correct rp/shadow face right-side-up">}
+
+bin 8
+rp face up-side-down
+.{122}{1:rt<"correct rp/shadow face up-side-down">}
+
