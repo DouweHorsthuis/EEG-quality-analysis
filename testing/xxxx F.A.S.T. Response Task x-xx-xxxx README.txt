@@ -1,0 +1,44 @@
+~~~~~~~~~Run in Presentation V20.1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Participant ID:10xxx	
+Control
+Date:x-xx-xxxx				
+Gender:x 			Age:xx 			Handedness:R 		Temperature:
+Glasses/contacts:No		Medication:None		Height:5ft		
+Weight:104				Exp:DH		booth:KL
+Externals:1,2,3,4 (normal 1,2,3,4)
+External location: 1 Right eye, 2 left eye, 3 right mastoid, 4 left mastoid
+Light:ON		(normal on)
+Screen: 97		(!!!! normal at 97cm !!!!)
+Cap:Red Blue 64		(color + channels)
+Hearingtest:	L	R	(write N/A if hearing test is not done on EEG day)
+	500hz 	5 dB	-10 dB	
+	1000hz 	0 dB	-10 dB
+	2000hz 	5 dB	-5 dB
+	4000hz 	5 dB	-5 dB
+Vision Test:	 L  	 R	(write N/A if vision test is not done on EEG day)
+		20/-	20/- 
+notes:  no false alarms but not always clicking  
+Save as: ID#_fast_1
+~~~~~~~~~~Triggers~~~~~~~~~~
+120 - Repeat faces,   20 - New Face
+130 - Repeat Objects, 30 - New Object 
+1 - button press
+Sequence: 
+20 or 30 should not be followed by a 1
+120 or 130 should always be followed by a 1
+~~~~~~~~~~Triggers~~~~~~~~~~
+Practice: did well
+Block 1 -face1:data little bit noisy - response good - eyetracking good
+Block 2:-obj1: data little bit noisy - response good - eyetracking good 
+Block 3:-obj2: data little bit noisy - response good - eyetracking good 			 
+Block 4:-face2: data good - response okay - eye tracking good 			
+Block 5:- face3	data good - response good - eye tracking good 		 
+Block 6:-obj3: data good - response 
+break outside booth
+Block 7: face 4: data good some alpha - response okay - eye tracking good 
+Block 8: obje 4: data good - response good - eye tracking good 
+Block 9: face 5: data good - response okay 
+Block 10:face 6: data good - response okay
+Block 11:obj  5: data good - response okay 
+Block 12:obj  6: data good - response okay  
+			 
