@@ -10,8 +10,6 @@ Douwe Horsthuis
 License](https://img.shields.io/github/license/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/blob/master/LICENSE.txt)
 [![LinkedIn](https://img.shields.io/badge/-LinkedIn-black.svg?style=plastic&logo=linkedin&colorB=555)](https://www.linkedin.com/in/douwe-horsthuis-725bb9188/)
 
-# EEG quality analysis pipeline
-
 **This EEG pipeline will both pre-process your data and give you a
 quality report afterwards that will look somewhat like this:**
 
@@ -26,10 +24,16 @@ the:
 
 1.  [About the project](#about-the-project)  
 2.  [The code](#the-code)
-    -   [How to download and use the
-        code](#how-to-download-and-use-the-code)
-    -   [How to prepare the code itself, and other parts for your
-        data](#how-to-prepare-the-code-itself-and-other-parts-for-your-data)
+    -   [How to download the code and setup
+        EEGLAB](#how-to-download-the-code-and-setup-eeglab)
+    -   [How to prepare your data](#how-to-prepare-your-data)
+    -   [How to setup the binlists for
+        triggers](#how-to-setup-the-binlists-for-triggers)
+    -   [How to prepare the code
+        itself](#how-to-prepare-the-code-itself)  
+    -   [Readme files and promts](#readme-files-and-promts)  
+3.  [Functions explained](#functions-explained)  
+4.  [Notes and upcoming additions](#notes-and-upcoming-additions)
 
 ## About the project
 
@@ -45,11 +49,13 @@ allows for analysis data as it comes, and tells us if the basics of a
 paradigms are working, if the participants responses are accurate, when
 eye tracking is used if the participant is looking at the right spot.
 The whole pipeline is written in Matlab, and relies on EEGLAB and some
-EEGLAB plugins. More in-depth information below.
+EEGLAB plugins. More in-depth information below. Part of the idea is to
+incorporate notes taken by the person collecing the data, we refer to
+these notes as readme files.
 
 ## The code
 
-### How to download and get the code ready
+### How to download the code and setup EEGLAB
 
 To download the code you can [click
 here](https://github.com/DouweHorsthuis/EEG-quality-analysis/archive/refs/heads/main.zip).
@@ -73,17 +79,35 @@ this manually by
 4.  Find where you have the function folder, you just downloaded, and
     add it.
 
-### How to prepare the code itself, and other parts for your data
+### How to prepare your data
+
+This script expect that your bdf files are organized in one folder per
+paradigm with sub folder for each participant. Which looks something
+like this:
+
+\[Paradigm name\]  
+├── \[IDparticipant1\] \# folder of the first participant  
+├── \[IDparticipant2\] \# folder of the second participant  
+:           :  
+└── \[IDparticipantn\] \# folder of participant n
+
+In line 68 and 69 it will update the loading and saving place for each
+individual subject.
+
+### How to setup the binlists for triggers
+
+You need files that will explain what trigger represents what. We call
+these binlists. You will need to create 2 binlists. 1 to plot your ERPS
+and another to calculate your reaction times (RTs). You can find and
+example for each in the testing folder, but for more all information on
+how to make one from scratch [see
+this](https://github-wiki-see.page/m/lucklab/erplab/wiki/Assigning-Events-to-Bins-with-BINLISTER:-Tutorial).
+
+### How to prepare the code itself
 
 While the idea is that there is very few manual (and potential
-subjective) input, you will need to set some parameters.  
-**Binlist**  
-The first is you need files that will explain what trigger represents
-what. We call these binlists. You will need to create 2 binlists. 1 to
-plot your ERPS and another to calculate your reaction times (RTs). You
-can find and example for each in the testing folder, but for more all
-information on how to make one from scratch [see
-this](https://github-wiki-see.page/m/lucklab/erplab/wiki/Assigning-Events-to-Bins-with-BINLISTER:-Tutorial).  
+subjective) input, you will need to set some parameters.
+
 **Updating variables inside matlab**  
 Line 10 to 42 all relate to information matlab wants from you. The first
 part you should set only 1 time and should be the same for each
@@ -133,15 +157,28 @@ epoch_time = [-100 500];
 baseline_time = [-50 0];
 ```
 
-This script expect that your bdf files are organized in one folder per
-paradigm with sub folder for each participant. Which looks something
-like this:
+### Readme files and promts
 
-\[Paradigm name\]  
-├── \[IDparticipant1\] \# folder of the first participant  
-├── \[IDparticipant2\] \# folder of the second participant  
-: :  
-└── \[IDparticipantn\] \# folder of participant n
+After making all these changes, you should be able to run the code. The
+first thing that happens is that you get prompted some questions. These
+are specific to each participant, this is why you will need to answer
+them for each participant. In all cases you will see a question show up
+in the command window of MATLAB. You need to type your answer and hit
+Enter. In some cases you will be explained how you need to format your
+answer (e.g. for bad channels you need to write both within {} and each
+channel requires ’’ to make it into separate strings).  
+**Readme files** are files with information filled out by the person
+collecting data. You can find an example [by clicking
+here](https://github.com/DouweHorsthuis/EEG-quality-analysis/blob/main/testing/xxxx%20F.A.S.T.%20Response%20Task%20x-xx-xxxx%20README.txt).
+If matlab cannot find the readme file or some of the information inside
+it it will add more promts to get the same information, but manually.
+Just like explained above.
 
-In line 68 and 69 it will update the loading and saving place for each
-individual subject.
+## Functions explained
+
+There are several functions that are being used. EXPLAIN HERE THE REST
+
+## Notes and upcoming additions
+
+ADD SHORTCOMMINGS (ONLY 1 EDF FILE FOR NOW) ADD REQUESTS FOR HELP
+QUESTIONS ETC.
