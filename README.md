@@ -1,7 +1,7 @@
 EEG quality analysis pipeline
 ================
 Douwe Horsthuis
-2022-08-30
+2022-09-01
 
 [![Contributors](https://img.shields.io/github/contributors/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/graphs/contributors)
 [![Forks](https://img.shields.io/github/forks/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/network/members)
@@ -13,7 +13,7 @@ License](https://img.shields.io/github/license/DouweHorsthuis/EEG-quality-analys
 **This EEG pipeline will both pre-process your data and give you a
 quality report afterwards that will look somewhat like this:**
 
-<img src="images/data_quality.png" alt="PNG of the data" align="center" width="1040" height="598"/>
+<img src="images/data_quality.jpg" alt="jpg of the data" align="center" width="1040" height="598"/>
 
 Made by [Douwe Horsthuis](https://github.com/DouweHorsthuis/) as part of
 the:
@@ -25,15 +25,19 @@ the:
 1.  [About the project](#about-the-project)  
 2.  [The code](#the-code)
     -   [How to download the code and setup
-        EEGLAB](#how-to-download-the-code-and-setup-eeglab)
-    -   [How to prepare your data](#how-to-prepare-your-data)
+        EEGLAB](#how-to-download-the-code-and-setup-eeglab)  
+    -   [How to prepare your data](#how-to-prepare-your-data)  
     -   [How to setup the binlists for
-        triggers](#how-to-setup-the-binlists-for-triggers)
+        triggers](#how-to-setup-the-binlists-for-triggers)  
     -   [How to prepare the code
         itself](#how-to-prepare-the-code-itself)  
     -   [Readme files and promts](#readme-files-and-promts)  
-3.  [Functions explained](#functions-explained)  
-4.  [Notes and upcoming additions](#notes-and-upcoming-additions)
+3.  [Functions explained](#functions-explained)
+    -   [readme_to_EEG](#readme_to_eeg)  
+    -   [eBridge](#ebridge)
+    -   [Edf2Mat](#edf2mat)
+4.  [Notes, shortcommings upcoming
+    additions](#notes-shortcommings-upcoming-additions)
 
 ## About the project
 
@@ -176,9 +180,79 @@ Just like explained above.
 
 ## Functions explained
 
-There are several functions that are being used. EXPLAIN HERE THE REST
+There are several functions that are being used. Since for
+pre-processing all these functions are native to EEGLAB see [our
+pipeline](https://github.com/DouweHorsthuis/EEG_to_ERP_pipeline_stats_R/)
+or check out the [EEGLAB website](https://eeglab.org/) for an in-dept
+explanation.
 
-## Notes and upcoming additions
+### readme_to_EEG
 
-ADD SHORTCOMMINGS (ONLY 1 EDF FILE FOR NOW) ADD REQUESTS FOR HELP
-QUESTIONS ETC.
+As mentioned [above](#readme-files-and-promts) we use readme files in
+the lab to write notes during data collection. These notes will have a
+lot of information that would help to say something about the quality of
+the EEG. Because of that we created a function,
+`[EEG]=readme_to_EEG(EEG,readme_yn,data_path,save_path_indv,subject_list{s});`
+It requires the structure `EEG`, this is where EEGLAB stores it’s
+information, and it’s where the functions adds the info. `Readme_yn`, is
+the result of a prompt that asks if there is a readme file (yes/no).
+`data_path` is the specific path to that persons data and
+`save_path_indv` is the same for saving. Lastly `subject_list{s}` is
+giving the subject number. All of these are auto created by the script.
+The readme file is loaded as on big string and we look for specific
+parts of the text to find the info we are looking for using MATLABS
+`extractBetween` function. This means that if we move the readme file
+around and change the template, we won’t be able to extract data
+efficiently without updating this function.
+
+### eBridge
+
+`eBridge` is a function that uses the EEG structure and checks if there
+are channels that are bridged. The full explanation can be found
+[here](https://psychophysiology.cpmc.columbia.edu/software/eBridge/index.html).
+Or in [this
+paper](https://psychophysiology.cpmc.columbia.edu/pdf/alschuler2013a.pdf)
+that was written and resulted in the function. `bridge=eBridge(EEG)`
+gives us a structure in which `bridge.Bridged.Labels` gives us the
+labels of all the bridged channels. Later we use this to plot a figure
+of the location of bridged channels.
+
+### Edf2Mat
+
+We use the `Edf2Mat` function to transform our eye tracking files
+(collected with SR-research’s Eyelink-1000 eye tracker system) and turn
+it into a heat map of where the participant was looking on the screen.
+
+## Notes, shortcommings upcoming additions
+
+### Shortcommings and upcoming additions
+
+**Eye tracking** We are currently only able to load 1 EDF file per
+participant and turn this into a heat map. This means that we can only
+see where the participant was looking for a part of the experiment. We
+hope to update this by finding a way to merge these files in Matlab
+while still being able to create a heat map.
+
+**ERP vs time frequency**  
+We want to add an option to choose between plotting ERPS or instead
+doing a time fequency analysis, using the `timenewf` function of EEGLAB.
+
+### Notes
+
+If you have suggestions, edits, or issues, please leave them
+[here](https://github.com/DouweHorsthuis/EEG-quality-analysis/issues),
+or e-mail me @ <douwehorsthuis@gmail.com>. This pipeline works for our
+lab,but that doesn’t mean it cannot be improved so all input is always
+welcome and very much appreciated.
+
+## Acknowledgements
+
+-   [Douwe Horsthuis](https://github.com/DouweHorsthuis)  
+-   [Ana
+    Francisco](https://www.linkedin.com/in/ana-alves-francisco-3798599a/)
+-   [Sophie
+    Molholm](https://www.einsteinmed.edu/faculty/12028/sophie-molholm/)
+-   [Pierfilippo De
+    Sanctis](https://einsteinmed.edu/faculty/12347/pierfilippo-de-sanctis/)
+-   [Shlomit
+    Beker](https://einsteinmed.edu/faculty/15122/shlomit-nir-beker/)

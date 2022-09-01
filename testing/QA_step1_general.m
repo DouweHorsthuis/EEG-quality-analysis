@@ -7,12 +7,10 @@
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'10508'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
+subject_list = {'11593_bad_data'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
 load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\Data\'; %will open individual folders based on subject ID
 save_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\test\'; %where will you save the data (something like 'C:\data\')
 binlist_location='C:\Users\dohorsth\Desktop\SFARI Behav\FAST\script\';
-logo_location= 'C:\Users\dohorsth\Documents\GitHub\EEG-quality-analysis\images\';%if you want to add a logo you can add it here if not leave it empty
-logo_filename='CNL_logo.jpeg'; %filename + extention (eg.'CNL_logo.jpeg')
 binlist_name='binlist_fast_simple.txt'; %name of the text file with your bins
 rt_binlist = 'binlist_fast_rt.txt'; %name of the reaction time binlist
 rt_plot_n=1:4; %which RT bins do you want to plot together (can only plot one group)
@@ -35,11 +33,6 @@ prompt = "Is there a readme file? (yes/no)";
 readme_yn= input(prompt,"s");
 prompt = "Is there Eye tracking? (yes/no)";
 ET_yn= input(prompt,"s");
-
-if strcmpi(ET_yn,'yes')
-prompt = "What is the eye tracking specific name for the EDF files (e.g. FAST when the whole file is 10000_FAST_1.edf)?";
-et_name= input(prompt,"s");
-end
 %% start
 for s = 1:length(subject_list)
     fprintf('\n******\nProcessing subject %s\n******\n\n', subject_list{s});
@@ -85,8 +78,8 @@ for s = 1:length(subject_list)
     end
     %% Adding participant information
     %step 1, using either the logfile if it exist, or promting you for data
-    [EEG]=logfile_to_pic(EEG,readme_yn,data_path,save_path_indv,subject_list{s});
-    %step 2, adding some info from previously promted things
+    [EEG]=readme_to_EEG(EEG,readme_yn,data_path,save_path_indv,subject_list{s});
+   %step 2, adding some info from previously promted things
     EEG.subject = subject_list{s}; %subject ID
     EEG.org_n_bdf=n_bdf;
     EEG.filter=table(lowpass_filter_hz,highpass_filter_hz);
@@ -134,8 +127,7 @@ for s = 1:length(subject_list)
         end
     end
     if isempty(EEG.del_chan)
-        figure('Renderer', 'painters', 'Position', [10 10 375 225])
-        annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', 'No Deleted channels')
+        figure('Renderer', 'painters', 'Position', [10 10 375 225]) %this is just an empty figure
     elseif length(EEG.del_chan)==1
         figure('Renderer', 'painters', 'Position', [10 10 375 225])
         annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', ['Only ' EEG.del_chan.labels ' was deleted'])
@@ -153,8 +145,7 @@ for s = 1:length(subject_list)
         end
     end
     if isempty(EEG.bridged)
-        figure('Renderer', 'painters', 'Position', [10 10 375 225])
-        annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', 'No Briged channels')
+        figure('Renderer', 'painters', 'Position', [10 10 375 225])%this is just an empty figure
     elseif length(EEG.bridged)==1
         figure('Renderer', 'painters', 'Position', [10 10 375 225])
         annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', ['Only ' EEG.bridged.labels ' was deleted'])
@@ -325,7 +316,7 @@ for i=1:length(ERP.bindescr)
     amount_string{i}=strjoin({'Amount' , ERP.bindescr{i}, convertStringsToChars(response_amount_final{i})});
 end
     
-end
+
 %% creating a group file with all info
 %this only needs to be ran for the 1st participant
 gr_mat=dir(save_path);
@@ -345,18 +336,18 @@ end
 %% creating the PDF file with the summary 
 fig=figure('units','normalized','outerposition',[0 0 1 1]);
 set(gcf,'color',[0.85 0.85 0.85])
-%logo
-if ~isempty(logo_location)
+%Deleted channels (topoplot if amount is >1)
 subplot(5,5,3);
-imshow([logo_location logo_filename]);
-end
+imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
+title('Deleted channels')
 %ERPS
 subplot(5,5,[4:5, 9:10]);
 imshow([save_path_indv subject_list{s} '_erps.png']);
 title('ERPs')
 %information boxes
-annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses;EEG.Medication; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
+annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
 annotation('textbox', [0.30, 0.825, 0.1, 0.1], 'String', [EEG.vision_info; EEG.vision; EEG.hearing_info; EEG.hz500; EEG.hz1000; EEG.hz2000; EEG.hz4000]);
+annotation('textbox', [0.25, 0.6, 0.1, 0.1], 'String',  EEG.Medication);
 annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
     "Lowpass filter: " + EEG.filter.lowpass_filter_hz(1) + "Hz";...
     "Highpass filter: " + EEG.filter.highpass_filter_hz(1) + "Hz";...
@@ -365,19 +356,15 @@ annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
     "Amount bridged chan: " + string(length(EEG.bridged))]);
 annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
 annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
-annotation('textbox', [0.1, 0.15, 0.1, 0.1], 'String',[EEG.notes])
-%Deleted channels (topoplot if amount is >1)
-subplot(5,5,18);
-imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
-title('Deleted channels')
+annotation('textbox', [0.55, 0.1, 0.1, 0.1], 'String',EEG.notes)
 %Bridged channels (topoplot if amount is >1)
-subplot(5,5,7);
-imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
-title('Bridged channels')
-%Deleted IC components
 subplot(5,5,8);
-imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
-title('Deleted ICs')
+imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
+if ~isempty(EEG.bridged)
+    title('Bridged channels')
+else
+    title('There are NO bridged channels')
+end
 %Raw data plot
 subplot(5,5, [14:15 19:20]);
 imshow([save_path_indv subject_list{s} '_raw_data.png']);
@@ -392,9 +379,19 @@ ylabel('Reaction time (ms)')
 if strcmpi(ET_yn,'yes')
     subplot(5,5,[11:12,16:17]);
     imshow([save_path_indv subject_list{s} '_eyetr.png'])
+    %Deleted IC components
+subplot(5,5,18);
+imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
+title('Deleted ICs')
+else
+    %Deleted IC components
+subplot(5,5,[11:12,16:17]);
+imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
+title('Deleted ICs')
 end
 %Final adjustments for the PDF
 sgtitle(['Quality of ' subject_list{s} 's data while doing ' p_name]);
 set(gcf, 'PaperSize', [16 10]);
 print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpdf') % then print it
 close all
+end

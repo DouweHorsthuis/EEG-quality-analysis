@@ -1,29 +1,27 @@
 % EEGLAB merge sets, and creates .set file
 % by Douwe Horsthuis updated on 8/10/2022
-% 
+% Specifically for F.A.S.T.
 % if crash says : Error in A_merge_sets (line 38)
 %            EEG = pop_biosig([data_path  subject_list{s} '_' filename '_' num2str(bdf_bl) '.bdf']);
 % Double check the name you gave, that is where the mistake is
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'id'};% The ID for the particpant
-load_path    = ''; %will open individual folders based on subject ID
-save_path    = ''; %where will you save the data (something like 'C:\data\')
-binlist_location='';
-logo_location= '';%if you want to add a logo you can add it here if not leave it empty
-logo_filename=''; %filename + extention (eg.'CNL_logo.jpeg')
-binlist_name=''; %name of the text file with your bins
-rt_binlist = ''; %name of the reaction time binlist
-rt_plot_n=; %which RT bins do you want to plot together (can only plot one group)
-plotting_bins=; %the bins that should become ERPs
-channels_names={}; %channels that you want plots for (
-colors={}; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
+subject_list = {'ID'};% The ID part of the BDF file (e.g. 1111_fast_1.bdf = '1111')
+load_path    = 'path to your data'; %will open individual folders based on subject ID
+save_path    = 'general place to save data'; %where will you save the data (something like 'C:\data\')
+binlist_location='path to your binlist';
+binlist_name='name.txt'; %name of the text file with your bins
+rt_binlist = 'name_rt.txt'; %name of the reaction time binlist
+rt_plot_n=start:end; %which RT bins do you want to plot together (can only plot one group)
+plotting_bins=start:end; %the bins that should become ERPs
+channels_names={'channelname'}; %channels that you want plots for (
+colors={'color+typeofline' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
 downsample_to=; % what is the sample rate you want to downsample to
 lowpass_filter_hz=; %50hz filter
 highpass_filter_hz=; %1hz filter
-epoch_time = [];
-baseline_time = [];
+epoch_time = [start-of-epoch end-of-epoch];
+baseline_time = [start-of-baseline end-of-baseline];
 %% Questions you need to answer in the command window before starting
 prompt = "What is the paradigm specific name for the bdf files (e.g. fast when the whole file is 10000_fast_1.bdf)?";
 p_name= input(prompt,"s");
@@ -35,11 +33,6 @@ prompt = "Is there a readme file? (yes/no)";
 readme_yn= input(prompt,"s");
 prompt = "Is there Eye tracking? (yes/no)";
 ET_yn= input(prompt,"s");
-
-if strcmpi(ET_yn,'yes')
-prompt = "What is the eye tracking specific name for the EDF files (e.g. FAST when the whole file is 10000_FAST_1.edf)?";
-et_name= input(prompt,"s");
-end
 %% start
 for s = 1:length(subject_list)
     fprintf('\n******\nProcessing subject %s\n******\n\n', subject_list{s});
@@ -85,8 +78,8 @@ for s = 1:length(subject_list)
     end
     %% Adding participant information
     %step 1, using either the logfile if it exist, or promting you for data
-    [EEG]=logfile_to_pic(EEG,readme_yn,data_path,save_path_indv,subject_list{s});
-    %step 2, adding some info from previously promted things
+    [EEG]=readme_to_EEG(EEG,readme_yn,data_path,save_path_indv,subject_list{s});
+   %step 2, adding some info from previously promted things
     EEG.subject = subject_list{s}; %subject ID
     EEG.org_n_bdf=n_bdf;
     EEG.filter=table(lowpass_filter_hz,highpass_filter_hz);
@@ -134,8 +127,7 @@ for s = 1:length(subject_list)
         end
     end
     if isempty(EEG.del_chan)
-        figure('Renderer', 'painters', 'Position', [10 10 375 225])
-        annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', 'No Deleted channels')
+        figure('Renderer', 'painters', 'Position', [10 10 375 225]) %this is just an empty figure
     elseif length(EEG.del_chan)==1
         figure('Renderer', 'painters', 'Position', [10 10 375 225])
         annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', ['Only ' EEG.del_chan.labels ' was deleted'])
@@ -153,8 +145,7 @@ for s = 1:length(subject_list)
         end
     end
     if isempty(EEG.bridged)
-        figure('Renderer', 'painters', 'Position', [10 10 375 225])
-        annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', 'No Briged channels')
+        figure('Renderer', 'painters', 'Position', [10 10 375 225])%this is just an empty figure
     elseif length(EEG.bridged)==1
         figure('Renderer', 'painters', 'Position', [10 10 375 225])
         annotation('textbox', [0.1, 0.9, 0.1, 0.1], 'String', ['Only ' EEG.bridged.labels ' was deleted'])
@@ -325,7 +316,7 @@ for i=1:length(ERP.bindescr)
     amount_string{i}=strjoin({'Amount' , ERP.bindescr{i}, convertStringsToChars(response_amount_final{i})});
 end
     
-end
+
 %% creating a group file with all info
 %this only needs to be ran for the 1st participant
 gr_mat=dir(save_path);
@@ -345,18 +336,18 @@ end
 %% creating the PDF file with the summary 
 fig=figure('units','normalized','outerposition',[0 0 1 1]);
 set(gcf,'color',[0.85 0.85 0.85])
-%logo
-if ~isempty(logo_location)
+%Deleted channels (topoplot if amount is >1)
 subplot(5,5,3);
-imshow([logo_location logo_filename]);
-end
+imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
+title('Deleted channels')
 %ERPS
 subplot(5,5,[4:5, 9:10]);
 imshow([save_path_indv subject_list{s} '_erps.png']);
 title('ERPs')
 %information boxes
-annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses;EEG.Medication; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
+annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
 annotation('textbox', [0.30, 0.825, 0.1, 0.1], 'String', [EEG.vision_info; EEG.vision; EEG.hearing_info; EEG.hz500; EEG.hz1000; EEG.hz2000; EEG.hz4000]);
+annotation('textbox', [0.25, 0.6, 0.1, 0.1], 'String',  EEG.Medication);
 annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
     "Lowpass filter: " + EEG.filter.lowpass_filter_hz(1) + "Hz";...
     "Highpass filter: " + EEG.filter.highpass_filter_hz(1) + "Hz";...
@@ -365,19 +356,15 @@ annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
     "Amount bridged chan: " + string(length(EEG.bridged))]);
 annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
 annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
-annotation('textbox', [0.1, 0.15, 0.1, 0.1], 'String',[EEG.notes])
-%Deleted channels (topoplot if amount is >1)
-subplot(5,5,18);
-imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
-title('Deleted channels')
+annotation('textbox', [0.55, 0.1, 0.1, 0.1], 'String',EEG.notes)
 %Bridged channels (topoplot if amount is >1)
-subplot(5,5,7);
-imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
-title('Bridged channels')
-%Deleted IC components
 subplot(5,5,8);
-imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
-title('Deleted ICs')
+imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
+if ~isempty(EEG.bridged)
+    title('Bridged channels')
+else
+    title('There are NO bridged channels')
+end
 %Raw data plot
 subplot(5,5, [14:15 19:20]);
 imshow([save_path_indv subject_list{s} '_raw_data.png']);
@@ -392,9 +379,19 @@ ylabel('Reaction time (ms)')
 if strcmpi(ET_yn,'yes')
     subplot(5,5,[11:12,16:17]);
     imshow([save_path_indv subject_list{s} '_eyetr.png'])
+    %Deleted IC components
+subplot(5,5,18);
+imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
+title('Deleted ICs')
+else
+    %Deleted IC components
+subplot(5,5,[11:12,16:17]);
+imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
+title('Deleted ICs')
 end
 %Final adjustments for the PDF
 sgtitle(['Quality of ' subject_list{s} 's data while doing ' p_name]);
 set(gcf, 'PaperSize', [16 10]);
 print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpdf') % then print it
 close all
+end
