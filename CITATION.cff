@@ -1,0 +1,23 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Horsthuis"
+  given-names: "Douwe J"
+  orcid: "https://orcid.org/0000-0002-9711-5423"
+- family-names: "Francisco"
+  given-names: "Ana A"
+  orcid: "https://orcid.org/0000-0003-4030-0297"
+- family-names: "De Sanctis"
+  given-names: "Pierfilippo"  
+  orcid: "https://orcid.org/0000-0003-3713-7177"
+- family-names: "Beker"
+  given-names: "Shlomit"
+  orcid: "https://orcid.org/0000-0002-6947-6811"    
+- family-names: "Molholm"
+  given-names: "Sophie"
+  orcid: "https://orcid.org/0000-0003-1870-7306"  
+title: "EEG-quality-analysis"
+version: 1.0.0
+doi: 10.5281/zenodo.7041685
+date-released: 2022-09-01
+url: "https://github.com/DouweHorsthuis/EEG-quality-analysis"
