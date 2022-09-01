@@ -7,32 +7,47 @@
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'11593_bad_data'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
-load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\Data\'; %will open individual folders based on subject ID
+subject_list = {'10769'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
+load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\BF\data\'; %will open individual folders based on subject ID
 save_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\test\'; %where will you save the data (something like 'C:\data\')
 binlist_location='C:\Users\dohorsth\Desktop\SFARI Behav\FAST\script\';
-binlist_name='binlist_fast_simple.txt'; %name of the text file with your bins
-rt_binlist = 'binlist_fast_rt.txt'; %name of the reaction time binlist
-rt_plot_n=1:4; %which RT bins do you want to plot together (can only plot one group)
-plotting_bins=1:4; %the bins that should become ERPs
-channels_names={'Cz' 'Pz' 'CPz' 'Po3' 'Poz' 'po4' 'o1' 'oz' 'o2'}; %channels that you want plots for (
-colors={'k-' , 'r-' , 'b-' ,'g-' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
-downsample_to=256; % what is the sample rate you want to downsample to
-lowpass_filter_hz=50; %50hz filter
+binlist_name='binlist_bf.txt'; %name of the text file with your bins
+rt_binlist = 'binlist_bf_rt.txt'; %name of the reaction time binlist
+rt_plot_n=1:2; %which RT bins do you want to plot together (can only plot one group)
+plotting_bins=1:2; %the bins that should become ERPs
+channels_names={'P9' 'P7' 'P5' 'Po7' 'po8' 'P6' 'P8' 'P10'}; %channels that you want erp plots for
+time_fq_chn={'Oz'};
+colors={'k-' , 'r-'}; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
+downsample_to=512; % what is the sample rate you want to downsample to
+lowpass_filter_hz=200; %50hz filter
 highpass_filter_hz=1; %1hz filter
-epoch_time = [-100 500];
+epoch_time = [-500 2500];
 baseline_time = [-50 0];
+low_fq= 3;
+high_fq=40;
 %% Questions you need to answer in the command window before starting
-prompt = "What is the paradigm specific name for the bdf files (e.g. fast when the whole file is 10000_fast_1.bdf)?";
+prompt = "What is the paradigm specific name for the bdf files (e.g. fast when the whole file is 10000_fast_1.bdf)?: ";
 p_name= input(prompt,"s");
-prompt = "How many bdf files should be used?";
+prompt = "How many bdf files should be used?: ";
 n_bdf= input(prompt);
-prompt = "Which channels are bad according to the readme file? write like this: {'fp1' 'o2' 'p1'}, hit enter if none";
+prompt = "Which channels are bad according to the readme file? write like this: {'fp1' 'o2' 'p1'}, hit enter if none: ";
 bad_channels= input(prompt);
-prompt = "Is there a readme file? (yes/no)";
+prompt = "Is there a readme file? (yes/no): ";
 readme_yn= input(prompt,"s");
-prompt = "Is there Eye tracking? (yes/no)";
+prompt = "Is there Eye tracking? (yes/no): ";
 ET_yn= input(prompt,"s");
+prompt = "Do you want a time frequency analysis? (yes/no): ";
+tf= input(prompt,"s");
+if strcmpi(tf,'yes')
+    prompt = "Do you have 1 or 2 conditions? (1/2/more): ";
+    tf_cond= input(prompt,"s");
+    if ~strcmpi(tf_cond,'1') && ~strcmpi(tf_cond,'2')
+        error('you can have a maximum of 2 conditions')
+    end
+    prompt = "Should the report skip the raw data, Eye tracking, or ERPS? (raw/erp/ET): ";
+    raw_erps_et= input(prompt,"s");
+end
+
 %% start
 for s = 1:length(subject_list)
     fprintf('\n******\nProcessing subject %s\n******\n\n', subject_list{s});
@@ -79,7 +94,7 @@ for s = 1:length(subject_list)
     %% Adding participant information
     %step 1, using either the logfile if it exist, or promting you for data
     [EEG]=readme_to_EEG(EEG,readme_yn,data_path,save_path_indv,subject_list{s});
-   %step 2, adding some info from previously promted things
+    %step 2, adding some info from previously promted things
     EEG.subject = subject_list{s}; %subject ID
     EEG.org_n_bdf=n_bdf;
     EEG.filter=table(lowpass_filter_hz,highpass_filter_hz);
@@ -215,7 +230,7 @@ for s = 1:length(subject_list)
     ERP = pop_savemyerp(ERP, 'erpname', [subject_list{s} '.erp'], 'filename', [subject_list{s} '.erp'], 'filepath', save_path_indv); %saving a.ERP file
     ERP = pop_loaderp( 'filename', [subject_list{s} '.erp'], 'filepath', save_path_indv );
     %channelnames to numbers
-    channels=zeros(1,length(channels_names));
+    channels=zeros(1,length(channels_names)); time_fq_chn_n=zeros(1,length(time_fq_chn));
     for i = 1:length(channels_names)
         for ii=1:length(EEG.chanlocs)
             if strcmpi(channels_names(i), EEG.chanlocs(ii).labels)
@@ -223,14 +238,72 @@ for s = 1:length(subject_list)
             end
         end
     end
-    erp_square=[ceil(sqrt(length(channels_names))) floor(sqrt(length(channels_names)))]; %for the subplots
+    for i = 1:length(time_fq_chn)
+        for ii=1:length(EEG.chanlocs)
+            if strcmpi(time_fq_chn(i), EEG.chanlocs(ii).labels)
+                time_fq_chn_n(i)=ii;
+            end
+            
+        end
+    end
+    
+    
+    
+    erp_square=[ceil(sqrt(length(channels_names))) ceil(sqrt(length(channels_names)))]; %for the subplots
     ERP = pop_ploterps( ERP,  plotting_bins, channels , 'AutoYlim', 'on', 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box',...
         erp_square, 'ChLabel', 'on', 'FontSizeChan',  10, 'FontSizeLeg',  12, 'FontSizeTicks',  10, 'LegPos', 'bottom', 'Linespec', colors,...
         'LineWidth',  1, 'Maximize', 'on', 'Position', [ 1 1 1 1 ], 'Style', 'Classic', 'Tag', 'ERP_figure',...
-        'Transparency',  0, 'xscale', [epoch_time   epoch_time(1):100:epoch_time(2) ], 'YDir', 'normal' );
+        'Transparency',  0, 'xscale', [epoch_time   epoch_time(1):(epoch_time(2)/15):epoch_time(2) ], 'YDir', 'normal' );
     print([save_path_indv subject_list{s} '_erps'], '-dpng' ,'-r300');
     close all
-    %% doing the epoching for reaction times now
+    %% time frequency
+    if strcmpi(tf,'yes')
+        if strcmpi(tf_cond,'1')
+            for i=1:length(EEG.event)
+                if  startsWith(EEG.event(i).binlabel,'B1')
+                    bin1=EEG.event(i).binlabel;
+                end
+            end
+            EEG_1 = pop_selectevent( EEG, 'type',{bin1},'deleteevents','off','deleteepochs','on','invertepochs','off');
+            figure();[ersp,powbaseCommon,times,freqs,erspboot,itcboot, tfdata] =  newtimef(EEG_1.data(time_fq_chn_n,:,:),...
+                EEG.pnts,...%frames (uses the total amount of sample points in the data
+                [EEG.xmin EEG.xmax]*1000,... %using the epoch times of the data *1000 to go from s to ms
+                EEG.srate,... %finds the sampling rate in the data
+                [3 7],... % 3 7 seems like a good suggestion, the wavelets should give a good balance between amount of cycles + is suggested by mike x cohen book
+                'freqs', [low_fq high_fq],... %we care for alpha 8-12hz so this should be enough
+                'alpha', 0.05,...%If non-0, compute two-tailed permutation significance probability level. Show non-signif. output values as green.                            {default: 0}
+                'commonbase', 'on',... %this is default, not sure how/why to set the baseline
+                'mcorrect', 'fdr',... %correcting for multiple comparisons not possible when comparing datasets
+                'plotitc' , 'off');%
+        elseif strcmpi(tf_cond,'2')
+            for i=1:length(EEG.event)
+                if  startsWith(EEG.event(i).binlabel,'B1')
+                    bin1=EEG.event(i).binlabel;
+                elseif startsWith(EEG.event(i).binlabel,'B2')
+                    bin2=EEG.event(i).binlabel;
+                end
+            end
+            ersp_title=[ERP.bindescr,strjoin([ERP.bindescr(1) , 'minus', ERP.bindescr(2)])];
+            EEG_1 = pop_selectevent( EEG, 'type',{bin1},'deleteevents','off','deleteepochs','on','invertepochs','off');
+            EEG_2 = pop_selectevent( EEG, 'type',{bin2},'deleteevents','off','deleteepochs','on','invertepochs','off');
+            [ersp,powbaseCommon,times,freqs,erspboot,itcboot, tfdata] =  newtimef({EEG_1.data(time_fq_chn_n,:,:), EEG_2.data(time_fq_chn_n,:,:)},...
+                EEG.pnts,...%frames (uses the total amount of sample points in the data
+                [EEG.xmin EEG.xmax]*1000,... %using the epoch times of the data *1000 to go from s to ms
+                EEG.srate,... %finds the sampling rate in the data
+                [3 7],... % 3 7 seems like a good suggestion, the wavelets should give a good balance between amount of cycles + is suggested by mike x cohen book
+                'freqs', [low_fq high_fq],... %we care for alpha 8-12hz so this should be enough
+                'alpha', 0.05,...%If non-0, compute two-tailed permutation significance probability level. Show non-signif. output values as green.                            {default: 0}
+                'commonbase', 'on',... %this is default, not sure how/why to set the baseline
+                'plotitc' , 'off',...
+                'title', ersp_title);%
+            set(gcf,'units','normalized','outerposition',[0 0 0.5 0.4])
+        end
+        
+        save([save_path_indv subject_list{s} '_timef.mat'], 'ersp','powbaseCommon','times','freqs','erspboot','itcboot', 'tfdata')
+        print([save_path_indv subject_list{s} '_timef'], '-dpng' ,'-r300');
+        close all
+    end
+    %% Behavioral
     EEG = pop_loadset('filename', [subject_list{s} '_events.set'], 'filepath', save_path_indv);
     EEG  = pop_binlister( EEG , 'BDF', [binlist_location rt_binlist], 'IndexEL',  1, 'SendEL2', 'EEG', 'Voutput', 'EEG' );
     EEG = pop_epochbin( EEG , epoch_time,  baseline_time); %epoch size and baseline size
@@ -246,9 +319,14 @@ for s = 1:length(subject_list)
     end
     
     participant_information=[string(EEG.subject), EEG.age, EEG.sex, EEG.hearing, EEG.vision, EEG.org_n_bdf, EEG.filter.lowpass_filter_hz(1), EEG.filter.highpass_filter_hz(1),EEG.del_eye_ic,EEG.del_total_ic,strjoin({EEG.del_chan.labels}) ,EEG.deleteddata, bridge.Bridged.Count,bridge.Bridged.Labels, ERP.ntrials.accepted];
+    
     %% Reaction times
     rt=readtable([save_path_indv 'rts.xls']); %reading table
-    rt=table2array(rt)
+    bin_name= rt.Properties.VariableNames;
+    for i = 1:length(bin_name) %turning underscores into spaces
+        bin_name(i) = strrep(bin_name(i),'_',' ');
+    end
+    rt=table2array(rt);
     for i=1:size(rt,2) %finding the amount of clicks for each bin
         response_amount(i)=length(rt(~isnan(rt(:,i))));
     end
@@ -277,121 +355,134 @@ for s = 1:length(subject_list)
     end
     %% eye tracking
     if strcmpi(ET_yn,'yes')
-    data_folder=dir(data_path);
-    %     date_2=datetime('28-Jun-1900 11:24:05');
-    %     for i=1:length(data_folder)
-    %         if endsWith(data_folder(i).name,'_1.edf')
-    %             edf1=Edf2Mat([data_path data_folder(i).name]);
-    %         end
-    %         if endsWith(data_folder(i).name,'.edf') && date_2<datetime(data_folder(i).date)
-    %             date_2=datetime(data_folder(i).date);
-    %             edf_2_name=data_folder(i).name;
-    %         end
-    %     end
-    edf_n.x=[]; edf_n.y=[];edf_test=[];edf_x=[]
-    for i=1:length(data_folder)
-        if endsWith(data_folder(i).name,'.edf')
-            edf_temp=Edf2Mat([data_path data_folder(i).name]);
-            %edf_test=[edf_test;edf_temp.Samples.posX,edf_temp.Samples.posY];
-            %edf_n.x=[edf_n.x;edf_temp.Samples.posX];
-            %edf_n.y=[edf_n.y;edf_temp.Samples.posY];
-            edf_x=[edf_x;edf_temp];
+        data_folder=dir(data_path);
+        %     date_2=datetime('28-Jun-1900 11:24:05');
+        %     for i=1:length(data_folder)
+        %         if endsWith(data_folder(i).name,'_1.edf')
+        %             edf1=Edf2Mat([data_path data_folder(i).name]);
+        %         end
+        %         if endsWith(data_folder(i).name,'.edf') && date_2<datetime(data_folder(i).date)
+        %             date_2=datetime(data_folder(i).date);
+        %             edf_2_name=data_folder(i).name;
+        %         end
+        %     end
+        edf_n.x=[]; edf_n.y=[];edf_test=[];edf_x=[];
+        for i=1:length(data_folder)
+            if endsWith(data_folder(i).name,'.edf')
+                edf_temp=Edf2Mat([data_path data_folder(i).name]);
+                %edf_test=[edf_test;edf_temp.Samples.posX,edf_temp.Samples.posY];
+                %edf_n.x=[edf_n.x;edf_temp.Samples.posX];
+                %edf_n.y=[edf_n.y;edf_temp.Samples.posY];
+                edf_x=[edf_x;edf_temp];
+            end
         end
-    end
-    
-    %     t=table(edf_n.x,edf_n.y);
-    %     figure();
-    %     heatmap(t,'Var1','Var2');
-    %     edf_temp_1=edfmex([data_path data_folder(i).name]);
-    %     figure();
-    %     print([save_path_indv subject_list{s} '_et_test'],'-dpng' ,'-r300') % then print it
-    plotHeatmap(edf_temp);
-    
-    print([save_path_indv subject_list{s} '_eyetr'], '-dpng' ,'-r300');
+        
+        %     t=table(edf_n.x,edf_n.y);
+        %     figure();
+        %     heatmap(t,'Var1','Var2');
+        %     edf_temp_1=edfmex([data_path data_folder(i).name]);
+        %     figure();
+        %     print([save_path_indv subject_list{s} '_et_test'],'-dpng' ,'-r300') % then print it
+        plotHeatmap(edf_temp);
+        
+        print([save_path_indv subject_list{s} '_eyetr'], '-dpng' ,'-r300');
     end
     close all;
     %creating the text for the reactions
-for i=1:length(ERP.bindescr)
-    rt_string{i}=strjoin({'RT - Average' , ERP.bindescr{i}, num2str(response_avg(i)), 'ms'});
-    amount_string{i}=strjoin({'Amount' , ERP.bindescr{i}, convertStringsToChars(response_amount_final{i})});
-end
-    
-
-%% creating a group file with all info
-%this only needs to be ran for the 1st participant
-gr_mat=dir(save_path);
-for i=1:length(gr_mat)
-    if strcmp(gr_mat(i).name,'group_info.mat') %if it already exist
-        colNames = [{'ID', 'Age', 'Sex', 'Hearing test good', 'Vision test good', 'Original amount of BDFs', 'Lowpass filter', 'Highpass filter', 'N deleted Eye ICs', 'N deleted total ICs', 'Deleted Channels', '% data deleted', 'N bridged channels', 'briged channels'} ERP.bindescr]; %adding names for columns [ERP.bindescr] adds all the name of the bins
-        group_info_2 = array2table( participant_information,'VariableNames',colNames);
-        load([save_path 'Group_info'])
-        group_info=[group_info;group_info_2];
-        save([save_path 'group_info'],'group_info')
-    else %if it doesn't exist, make it
-        colNames = [{'ID', 'Age', 'Sex', 'Hearing test good', 'Vision test good', 'Original amount of BDFs', 'Lowpass filter', 'Highpass filter', 'N deleted Eye ICs', 'N deleted total ICs', 'Deleted Channels', '% data deleted', 'N bridged channels', 'briged channels'} ERP.bindescr]; %adding names for columns [ERP.bindescr] adds all the name of the bins
-        group_info = array2table( participant_information,'VariableNames',colNames);
-        save([save_path 'group_info'],'group_info')
+    for i=1:length(bin_name)
+        rt_string{i}=strjoin({'RT - Average' , bin_name{i}, num2str(response_avg(i)), 'ms'});
+        amount_string{i}=strjoin({'Amount' , bin_name{i}, convertStringsToChars(response_amount_final{i})});
     end
-end
-%% creating the PDF file with the summary 
-fig=figure('units','normalized','outerposition',[0 0 1 1]);
-set(gcf,'color',[0.85 0.85 0.85])
-%Deleted channels (topoplot if amount is >1)
-subplot(5,5,3);
-imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
-title('Deleted channels')
-%ERPS
-subplot(5,5,[4:5, 9:10]);
-imshow([save_path_indv subject_list{s} '_erps.png']);
-title('ERPs')
-%information boxes
-annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
-annotation('textbox', [0.30, 0.825, 0.1, 0.1], 'String', [EEG.vision_info; EEG.vision; EEG.hearing_info; EEG.hz500; EEG.hz1000; EEG.hz2000; EEG.hz4000]);
-annotation('textbox', [0.25, 0.6, 0.1, 0.1], 'String',  EEG.Medication);
-annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
-    "Lowpass filter: " + EEG.filter.lowpass_filter_hz(1) + "Hz";...
-    "Highpass filter: " + EEG.filter.highpass_filter_hz(1) + "Hz";...
-    "Data deleted: " + num2str(EEG.deleteddata) + "%";...
-    "Amount bad chan: " + string(length(EEG.del_chan));...
-    "Amount bridged chan: " + string(length(EEG.bridged))]);
-annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
-annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
-annotation('textbox', [0.55, 0.1, 0.1, 0.1], 'String',EEG.notes)
-%Bridged channels (topoplot if amount is >1)
-subplot(5,5,8);
-imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
-if ~isempty(EEG.bridged)
-    title('Bridged channels')
-else
-    title('There are NO bridged channels')
-end
-%Raw data plot
-subplot(5,5, [14:15 19:20]);
-imshow([save_path_indv subject_list{s} '_raw_data.png']);
-title('Overview raw data')
-%RT plot
-subplot(5,5,13)
-boxplot([rt_start, rt_middle, rt_end], 'Labels',{'Start', 'Middle', 'End'})
-title('Reaction time, at the start-middle-end')
-xlabel('Moment trials happened in the paradigm')
-ylabel('Reaction time (ms)')
-%ET plot
-if strcmpi(ET_yn,'yes')
+    
+    
+    %% creating a group file with all info
+    %this only needs to be ran for the 1st participant
+    gr_mat=dir(save_path);
+    for i=1:length(gr_mat)
+        if strcmp(gr_mat(i).name,'group_info.mat') %if it already exist
+            colNames = [{'ID', 'Age', 'Sex', 'Hearing test good', 'Vision test good', 'Original amount of BDFs', 'Lowpass filter', 'Highpass filter', 'N deleted Eye ICs', 'N deleted total ICs', 'Deleted Channels', '% data deleted', 'N bridged channels', 'briged channels'} ERP.bindescr]; %adding names for columns [ERP.bindescr] adds all the name of the bins
+            group_info_2 = array2table( participant_information,'VariableNames',colNames);
+            load([save_path 'Group_info'])
+            group_info=[group_info;group_info_2];
+            save([save_path 'group_info'],'group_info')
+        else %if it doesn't exist, make it
+            colNames = [{'ID', 'Age', 'Sex', 'Hearing test good', 'Vision test good', 'Original amount of BDFs', 'Lowpass filter', 'Highpass filter', 'N deleted Eye ICs', 'N deleted total ICs', 'Deleted Channels', '% data deleted', 'N bridged channels', 'briged channels'} ERP.bindescr]; %adding names for columns [ERP.bindescr] adds all the name of the bins
+            group_info = array2table( participant_information,'VariableNames',colNames);
+            save([save_path 'group_info'],'group_info')
+        end
+    end
+    %% creating the PDF file with the summary
+    fig=figure('units','normalized','outerposition',[0 0 1 1]);
+    set(gcf,'color',[0.85 0.85 0.85])
+    %Deleted channels (topoplot if amount is >1)
+    subplot(5,5,3);
+    imshow([save_path_indv subject_list{s} '_deleted_channels.png']);
+    title('Deleted channels')
+    %ERPS
+    subplot(5,5,[4:5, 9:10]);
+    if strcmpi(raw_erps_et,'erp')
+        imshow([save_path_indv subject_list{s} '_timef.png']);
+    else
+        imshow([save_path_indv subject_list{s} '_erps.png']);
+        title('ERPs')
+    end
+    %information boxes
+    annotation('textbox', [0.1, 0.825, 0.1, 0.1], 'String', [EEG.date; EEG.age; EEG.sex; EEG.Hand; EEG.glasses; EEG.Exp;EEG.Externals;EEG.Light; EEG.Screen; EEG.Cap;])
+    annotation('textbox', [0.30, 0.825, 0.1, 0.1], 'String', [EEG.vision_info; EEG.vision; EEG.hearing_info; EEG.hz500; EEG.hz1000; EEG.hz2000; EEG.hz4000]);
+    annotation('textbox', [0.25, 0.6, 0.1, 0.1], 'String',  EEG.Medication);
+    annotation('textbox', [0.1, 0.6, 0.1, 0.1], 'String', [...
+        "Lowpass filter: " + EEG.filter.lowpass_filter_hz(1) + "Hz";...
+        "Highpass filter: " + EEG.filter.highpass_filter_hz(1) + "Hz";...
+        "Data deleted: " + num2str(EEG.deleteddata) + "%";...
+        "Amount bad chan: " + string(length(EEG.del_chan));...
+        "Amount bridged chan: " + string(length(EEG.bridged))]);
+    annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
+    annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
+    annotation('textbox', [0.55, 0.1, 0.1, 0.1], 'String',EEG.notes)
+    %Bridged channels (topoplot if amount is >1)
+    subplot(5,5,8);
+    imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
+    if ~isempty(EEG.bridged)
+        title('Bridged channels')
+    else
+        title('There are NO bridged channels')
+    end
+    %Raw data plot
+    subplot(5,5, [14:15 19:20]);
+    
+    if strcmpi(raw_erps_et,'raw')
+        imshow([save_path_indv subject_list{s} '_timef.png']);
+    else
+        imshow([save_path_indv subject_list{s} '_raw_data.png']);
+        title('Overview raw data')
+    end
+    %RT plot
+    subplot(5,5,13)
+    boxplot([rt_start, rt_middle, rt_end], 'Labels',{'Start', 'Middle', 'End'})
+    title('Reaction time, at the start-middle-end')
+    xlabel('Moment trials happened in the paradigm')
+    ylabel('Reaction time (ms)')
+    %ET plot
     subplot(5,5,[11:12,16:17]);
-    imshow([save_path_indv subject_list{s} '_eyetr.png'])
-    %Deleted IC components
-subplot(5,5,18);
-imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
-title('Deleted ICs')
-else
-    %Deleted IC components
-subplot(5,5,[11:12,16:17]);
-imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
-title('Deleted ICs')
-end
-%Final adjustments for the PDF
-sgtitle(['Quality of ' subject_list{s} 's data while doing ' p_name]);
-set(gcf, 'PaperSize', [16 10]);
-print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpdf') % then print it
-close all
+    if strcmpi(raw_erps_et,'ET')
+        imshow([save_path_indv subject_list{s} '_timef.png']);
+    else
+        if strcmpi(ET_yn,'yes')
+            
+            imshow([save_path_indv subject_list{s} '_eyetr.png'])
+            %Deleted IC components
+            subplot(5,5,18);
+            imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
+            title('Deleted ICs')
+        else
+            %Deleted IC components
+            imshow([save_path_indv subject_list{s} '_Bad_ICs_topos.png']);
+            title('Deleted ICs')
+        end
+    end
+    %Final adjustments for the PDF
+    sgtitle(['Quality of ' subject_list{s} 's data while doing ' experiment_title]);
+    set(gcf, 'PaperSize', [16 10]);
+    print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpdf') % then print it
+    close all
 end

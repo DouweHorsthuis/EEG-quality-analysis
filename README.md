@@ -36,6 +36,7 @@ the:
     -   [readme_to_EEG](#readme_to_eeg)  
     -   [eBridge](#ebridge)
     -   [Edf2Mat](#edf2mat)
+    -   [newtimef](#newtimef)
 4.  [Notes, shortcommings upcoming
     additions](#notes-shortcommings-upcoming-additions)
 
@@ -54,8 +55,13 @@ paradigms are working, if the participants responses are accurate, when
 eye tracking is used if the participant is looking at the right spot.
 The whole pipeline is written in Matlab, and relies on EEGLAB and some
 EEGLAB plugins. More in-depth information below. Part of the idea is to
-incorporate notes taken by the person collecing the data, we refer to
+incorporate notes taken by the person collecting the data, we refer to
 these notes as readme files.
+
+**If you plan to use it, please cite**: Horsthuis, D. J., Francisco, A.
+A., De Sanctis, P., Beker, S., & Molholm, S. (2022).
+EEG-quality-analysis (Version 1.0.0) \[Computer software\].
+<https://doi.org/10.5281/zenodo.7041685>
 
 ## The code
 
@@ -79,13 +85,13 @@ this manually by
 
 1.  Clicking **HOME** (left top corner)  
 2.  **Set Path** (in the middle of the top panel)  
-3.  **Add with Subfolders…**  
+3.  **Add with Sub folders…**  
 4.  Find where you have the function folder, you just downloaded, and
     add it.
 
 ### How to prepare your data
 
-This script expect that your bdf files are organized in one folder per
+This script expect that your BDF files are organized in one folder per
 paradigm with sub folder for each participant. Which looks something
 like this:
 
@@ -112,8 +118,8 @@ this](https://github-wiki-see.page/m/lucklab/erplab/wiki/Assigning-Events-to-Bin
 While the idea is that there is very few manual (and potential
 subjective) input, you will need to set some parameters.
 
-**Updating variables inside matlab**  
-Line 10 to 42 all relate to information matlab wants from you. The first
+**Updating variables inside MATLAB**  
+Line 10 to 42 all relate to information MATLAB wants from you. The first
 part you should set only 1 time and should be the same for each
 participant you run for that paradigm.
 
@@ -135,6 +141,8 @@ lowpass_filter_hz=; %50hz filter
 highpass_filter_hz=; %1hz filter
 epoch_time = [];
 baseline_time = [];
+low_fq= ;%lowest frequency for time frequency plot (if you go lower than 3hz you will need a lot of data)
+high_fq=; %highest frequency for time freq plot, should never be more than half your sampling or half your low pass 
 ```
 
 In the testing folder you can see an example where it is all filled out.
@@ -159,6 +167,8 @@ lowpass_filter_hz=50; %50hz filter
 highpass_filter_hz=1; %1hz filter
 epoch_time = [-100 500];
 baseline_time = [-50 0];
+low_fq= 3;%lowest frequency for time frequency plot (if you go lower than 3hz you will need a lot of data)
+high_fq=40;%highest frequency for time freq plot, should never be more than half your sampling or half your low pass 
 ```
 
 ### Readme files and promts
@@ -174,8 +184,8 @@ channel requires ’’ to make it into separate strings).
 **Readme files** are files with information filled out by the person
 collecting data. You can find an example [by clicking
 here](https://github.com/DouweHorsthuis/EEG-quality-analysis/blob/main/testing/xxxx%20F.A.S.T.%20Response%20Task%20x-xx-xxxx%20README.txt).
-If matlab cannot find the readme file or some of the information inside
-it it will add more promts to get the same information, but manually.
+If MATLAB cannot find the readme file or some of the information inside
+it it will add more prompts to get the same information, but manually.
 Just like explained above.
 
 ## Functions explained
@@ -215,13 +225,29 @@ paper](https://psychophysiology.cpmc.columbia.edu/pdf/alschuler2013a.pdf)
 that was written and resulted in the function. `bridge=eBridge(EEG)`
 gives us a structure in which `bridge.Bridged.Labels` gives us the
 labels of all the bridged channels. Later we use this to plot a figure
-of the location of bridged channels.
+of the location of bridged channels. **note that bridged channels are
+not deleted**.
 
 ### Edf2Mat
 
 We use the `Edf2Mat` function to transform our eye tracking files
 (collected with SR-research’s Eyelink-1000 eye tracker system) and turn
 it into a heat map of where the participant was looking on the screen.
+
+### newtimef
+
+Because it is a native EEGLAB function [all the explanation can be found
+here](https://eeglab.org/tutorials/08_Plot_data/Time-Frequency_decomposition.html).
+However, it is a new addition to the pipeline that might still need some
+extra testing on our side **so please use with caution and report
+bugs**. For now it works on 1 channel only, where it does a time
+frequency analysis for the length of your epochs. If you have 1
+condition, you will be prompted this question, you will only get one
+plot. If you have 2, you will get a plot for both and a difference plot.
+If you have more, you will get an error because this is not possible for
+now. Further more, **be aware that if you have multiple bins in your
+binlist, the first one or first 2 will be selected and plotted, depended
+on how many conditions you chose**.
 
 ## Notes, shortcommings upcoming additions
 
@@ -232,10 +258,6 @@ participant and turn this into a heat map. This means that we can only
 see where the participant was looking for a part of the experiment. We
 hope to update this by finding a way to merge these files in Matlab
 while still being able to create a heat map.
-
-**ERP vs time frequency**  
-We want to add an option to choose between plotting ERPS or instead
-doing a time fequency analysis, using the `timenewf` function of EEGLAB.
 
 ### Notes
 
@@ -256,3 +278,5 @@ welcome and very much appreciated.
     Sanctis](https://einsteinmed.edu/faculty/12347/pierfilippo-de-sanctis/)
 -   [Shlomit
     Beker](https://einsteinmed.edu/faculty/15122/shlomit-nir-beker/)
+-   [John
+    Foxe](https://www.urmc.rochester.edu/people/29722174-john-j-foxe)

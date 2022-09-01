@@ -191,7 +191,7 @@ if strcmpi(notes,'Notes:') || strlength(notes)>90
     
     if strlength(notes)>90 %checking if it fits in the figure (+90 chr goes over the edge)
         start=1;notes_temp=cellstr(notes')';notes_temp_2={};length_notes=ceil(strlength(notes)/80)*80;
-        for i=1:length(med_temp) %to stop the spaces from being deleted
+        for i=1:length(notes_temp) %to stop the spaces from being deleted
             if isempty(notes_temp{i})
                 notes_temp{i}={' '};
             end
