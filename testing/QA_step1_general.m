@@ -1,27 +1,27 @@
 % EEGLAB merge sets, and creates .set file
 % by Douwe Horsthuis updated on 8/10/2022
-% Specifically for F.A.S.T.
+% When running it for the first time for any new paradigm:
 % if crash says : Error in A_merge_sets (line 38)
 %            EEG = pop_biosig([data_path  subject_list{s} '_' filename '_' num2str(bdf_bl) '.bdf']);
 % Double check the name you gave, that is where the mistake is
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'10769'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
-load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\BF\data\'; %will open individual folders based on subject ID
+subject_list = {'11244'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
+load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\data\'; %will open individual folders based on subject ID
 save_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\test\'; %where will you save the data (something like 'C:\data\')
 binlist_location='C:\Users\dohorsth\Desktop\SFARI Behav\FAST\script\';
-binlist_name='binlist_bf.txt'; %name of the text file with your bins
-rt_binlist = 'binlist_bf_rt.txt'; %name of the reaction time binlist
-rt_plot_n=1:2; %which RT bins do you want to plot together (can only plot one group)
-plotting_bins=1:2; %the bins that should become ERPs
-channels_names={'P9' 'P7' 'P5' 'Po7' 'po8' 'P6' 'P8' 'P10'}; %channels that you want erp plots for
+binlist_name='binlist_fast.txt'; %name of the text file with your bins
+rt_binlist = 'binlist_fast_rt.txt'; %name of the reaction time binlist
+rt_plot_n=5:8; %which RT bins do you want to plot together (can only plot one group)
+plotting_bins=1:4; %the bins that should become ERPs
+channels_names={'Cz' 'Pz' 'Cpz' 'Po3' 'Poz' 'Po4' 'o1' 'oz' 'o2'}; %channels that you want erp plots for
 time_fq_chn={'Oz'};
-colors={'k-' , 'r-'}; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
-downsample_to=512; % what is the sample rate you want to downsample to
-lowpass_filter_hz=200; %50hz filter
+colors={'k-' , 'r-', 'g-' 'c-'}; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
+downsample_to=256; % what is the sample rate you want to downsample to
+lowpass_filter_hz=50; %50hz filter
 highpass_filter_hz=1; %1hz filter
-epoch_time = [-500 2500];
+epoch_time = [-100 500];
 baseline_time = [-50 0];
 low_fq= 3;
 high_fq=40;
@@ -46,8 +46,12 @@ if strcmpi(tf,'yes')
     end
     prompt = "Should the report skip the raw data, Eye tracking, or ERPS? (raw/erp/ET): ";
     raw_erps_et= input(prompt,"s");
+else
+    raw_erps_et=[];
 end
-
+%% finding location of the script
+file_loc=[fileparts(matlab.desktop.editor.getActiveFilename),filesep];
+addpath(genpath(file_loc));%adding path to your scripts so that the functions are found
 %% start
 for s = 1:length(subject_list)
     fprintf('\n******\nProcessing subject %s\n******\n\n', subject_list{s});
@@ -167,8 +171,14 @@ for s = 1:length(subject_list)
     else
         figure; topoplot([],EEG.bridged, 'style', 'fill',  'electrodes', 'labelpoint', 'chaninfo', EEG.chaninfo);
     end
+    if isempty(bridge.Bridged.Labels{1, 1})
+        bridge.Bridged.Labels='Nothing is bridged';
+    else
+        bridge.Bridged.Labels=strjoin(bridge.Bridged.Labels);
+    end
     print([save_path_indv subject_list{s} '_bridged_channels'], '-dpng' ,'-r300');
     close all
+    
     %% PCA, Channel interpolation, avg ref, ICA, IClabel
     pca = EEG.nbchan-1; %the PCA part of the ICA needs stops the rank-deficiency
     EEG = pop_interp(EEG, EEG.orgchan, 'spherical');%interpolates the data
@@ -202,6 +212,7 @@ for s = 1:length(subject_list)
     end
     close all
     EEG = pop_saveset( EEG, 'filename',[subject_list{s} '_excom.set'],'filepath', save_path_indv);
+    
     %% epoching
     % there is something odd in the EEG.event structure where not all triggers are correct.
     for i =1:length(EEG.event)%something odd, where eeg.event is irregular
@@ -253,7 +264,7 @@ for s = 1:length(subject_list)
     ERP = pop_ploterps( ERP,  plotting_bins, channels , 'AutoYlim', 'on', 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box',...
         erp_square, 'ChLabel', 'on', 'FontSizeChan',  10, 'FontSizeLeg',  12, 'FontSizeTicks',  10, 'LegPos', 'bottom', 'Linespec', colors,...
         'LineWidth',  1, 'Maximize', 'on', 'Position', [ 1 1 1 1 ], 'Style', 'Classic', 'Tag', 'ERP_figure',...
-        'Transparency',  0, 'xscale', [epoch_time   epoch_time(1):(epoch_time(2)/15):epoch_time(2) ], 'YDir', 'normal' );
+        'Transparency',  0, 'xscale', [epoch_time   epoch_time(1):(epoch_time(2)/10):epoch_time(2) ], 'YDir', 'normal' );
     print([save_path_indv subject_list{s} '_erps'], '-dpng' ,'-r300');
     close all
     %% time frequency
@@ -312,11 +323,7 @@ for s = 1:length(subject_list)
     ERP = pop_loaderp( 'filename', [subject_list{s} '_rt.erp'], 'filepath', save_path_indv );
     values = pop_rt2text(ERP, 'eventlist',  1, 'filename', [save_path_indv 'rts.xls'], 'header', 'on',...
         'listformat', 'basic' );
-    if isempty(bridge.Bridged.Labels{1, 1})
-        bridge.Bridged.Labels='Nothing is bridged';
-    else
-        bridge.Bridged.Labels=strjoin(bridge.Bridged.Labels);
-    end
+    
     
     participant_information=[string(EEG.subject), EEG.age, EEG.sex, EEG.hearing, EEG.vision, EEG.org_n_bdf, EEG.filter.lowpass_filter_hz(1), EEG.filter.highpass_filter_hz(1),EEG.del_eye_ic,EEG.del_total_ic,strjoin({EEG.del_chan.labels}) ,EEG.deleteddata, bridge.Bridged.Count,bridge.Bridged.Labels, ERP.ntrials.accepted];
     
@@ -327,12 +334,11 @@ for s = 1:length(subject_list)
         bin_name(i) = strrep(bin_name(i),'_',' ');
     end
     rt=table2array(rt);
-    for i=1:size(rt,2) %finding the amount of clicks for each bin
+    for i=1:size(rt,2) %finding the amount of clicks for each bin & %finding the avg rt
         response_amount(i)=length(rt(~isnan(rt(:,i))));
-    end
-    for i=1:size(rt,2) %finding the avg rt
         response_avg(i)=mean(rt((~isnan(rt(:,i))),i));
     end
+    
     %% deviding RTs into 3 groups across the time of the paradigm (beginning middel end)
     %first 1/3 of all corrects
     rt_start=[];rt_middle=[];rt_end=[];
@@ -353,48 +359,17 @@ for s = 1:length(subject_list)
             response_amount_final{i}= "0" + string(response_amount(i));
         end
     end
+    %creating the text for the reactions
+    for i=1:length(bin_name)
+        rt_string{i}=strjoin({'RT - Average' , bin_name{i}, num2str(round(response_avg(i))), 'ms'});
+        amount_string{i}=strjoin({'Amount' , bin_name{i}, convertStringsToChars(response_amount_final{i})});
+    end
     %% eye tracking
     if strcmpi(ET_yn,'yes')
-        data_folder=dir(data_path);
-        %     date_2=datetime('28-Jun-1900 11:24:05');
-        %     for i=1:length(data_folder)
-        %         if endsWith(data_folder(i).name,'_1.edf')
-        %             edf1=Edf2Mat([data_path data_folder(i).name]);
-        %         end
-        %         if endsWith(data_folder(i).name,'.edf') && date_2<datetime(data_folder(i).date)
-        %             date_2=datetime(data_folder(i).date);
-        %             edf_2_name=data_folder(i).name;
-        %         end
-        %     end
-        edf_n.x=[]; edf_n.y=[];edf_test=[];edf_x=[];
-        for i=1:length(data_folder)
-            if endsWith(data_folder(i).name,'.edf')
-                edf_temp=Edf2Mat([data_path data_folder(i).name]);
-                %edf_test=[edf_test;edf_temp.Samples.posX,edf_temp.Samples.posY];
-                %edf_n.x=[edf_n.x;edf_temp.Samples.posX];
-                %edf_n.y=[edf_n.y;edf_temp.Samples.posY];
-                edf_x=[edf_x;edf_temp];
-            end
-        end
-        
-        %     t=table(edf_n.x,edf_n.y);
-        %     figure();
-        %     heatmap(t,'Var1','Var2');
-        %     edf_temp_1=edfmex([data_path data_folder(i).name]);
-        %     figure();
-        %     print([save_path_indv subject_list{s} '_et_test'],'-dpng' ,'-r300') % then print it
-        plotHeatmap(edf_temp);
-        
+        edf_to_figure(data_path);
         print([save_path_indv subject_list{s} '_eyetr'], '-dpng' ,'-r300');
     end
     close all;
-    %creating the text for the reactions
-    for i=1:length(bin_name)
-        rt_string{i}=strjoin({'RT - Average' , bin_name{i}, num2str(response_avg(i)), 'ms'});
-        amount_string{i}=strjoin({'Amount' , bin_name{i}, convertStringsToChars(response_amount_final{i})});
-    end
-    
-    
     %% creating a group file with all info
     %this only needs to be ran for the 1st participant
     gr_mat=dir(save_path);
@@ -441,8 +416,8 @@ for s = 1:length(subject_list)
     annotation('textbox', [0.55, 0.1, 0.1, 0.1], 'String',EEG.notes)
     %Bridged channels (topoplot if amount is >1)
     subplot(5,5,8);
-    imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
     if ~isempty(EEG.bridged)
+        imshow([save_path_indv subject_list{s} '_bridged_channels.png']);
         title('Bridged channels')
     else
         title('There are NO bridged channels')
@@ -481,7 +456,7 @@ for s = 1:length(subject_list)
         end
     end
     %Final adjustments for the PDF
-    sgtitle(['Quality of ' subject_list{s} 's data while doing ' experiment_title]);
+    sgtitle(['Quality of ' subject_list{s} 's data while doing ' p_name]);
     set(gcf, 'PaperSize', [16 10]);
     print(fig,[save_path_indv subject_list{s} '_data_quality'],'-dpdf') % then print it
     close all
