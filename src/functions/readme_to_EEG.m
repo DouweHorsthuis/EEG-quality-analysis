@@ -116,23 +116,23 @@ if isempty(pres_version)
     prompt = "What Version of Presentation was used?";
     pres_version= input(prompt,"s"); pres_version=strcat('Presentation Version:',cellstr(pres_version));
 end
-if strcmpi(date_1,'Date:')
+if strcmpi(date_1,'Date:') || strlength(date_1)>20
     prompt = "Date of data collection (mm/dd/yyyy): ";
     date_1= input(prompt,"s"); date_1=strcat('Date:',cellstr(date_1));
 end
-if strcmpi(Age,'Age:')
+if strcmpi(Age,'Age:') || strlength(Age)>10
     prompt = "Age of participant: ";
     Age= input(prompt,"s"); Age=strcat('Age: ',cellstr(Age));
 end
-if strcmpi(Sex,'Sex:')
+if strcmpi(Sex,'Sex:') || strlength(Sex)>15
     prompt = "Sex of participant: ";
     Sex= input(prompt,"s"); Sex=strcat('Gender: ', cellstr(Sex));
 end
-if strcmpi(Handedness,'Handedness:')
+if strcmpi(Handedness,'Handedness:') || strlength(Handedness)>25
     prompt = "Handedness: ";
     Handedness= input(prompt,"s"); Handedness=strcat('Handedness: ',cellstr(Handedness));
 end
-if strcmpi(glasses,'Glasses or contacts:')
+if strcmpi(glasses,'Glasses or contacts:') || strlength(glasses)>35
     prompt = "glasses or contacts: ";
     glasses= input(prompt,"s"); glasses=strcat('Glasses or contacts: ', cellstr(glasses));
 end
@@ -162,33 +162,34 @@ if strcmpi(Medication,'Medication:') || strlength(Medication)>40
         Medication=med_temp_2; %Notes are now 80chr but with enters at the end so it still fits
     end
 else
-Medication=['Medication: ',Medication];
+    Medication=['Medication: ',Medication];
 end
-if strcmpi(Exp,'Exp:')
+if strcmpi(Exp,'Exp:') || strlength(Exp)>20
     prompt = "Experimenter: ";
     Exp= input(prompt,"s"); Exp=strcat('Experimenter: ',cellstr(Exp));
 end
-if strcmpi(Externals,'Externals:')
+if strcmpi(Externals,'Externals:') || strlength(Externals)>25
     prompt = "Externals: ";
     Externals= input(prompt,"s"); Externals=strcat('Externals: ',cellstr(Externals));
 end
-if strcmpi(Light,'Light:')
+if strcmpi(Light,'Light:') || strlength(Light)>10
     prompt = "Light on/off: ";
     Light= input(prompt,"s"); Light=strcat('Light: ',cellstr(Light));
 end
-if strcmpi(Screen,'Screen:')
+if strcmpi(Screen,'Screen:') || strlength(Screen)>30
     prompt = "Screen distance (cm): ";
     Screen= input(prompt,"s"); Screen=strcat('Screen distance (cm): ',cellstr(Screen));
 end
-if strcmpi(Cap,'Cap:')
+if strcmpi(Cap,'Cap:') || strlength(Cap)>50
     prompt = "Cap size and # channels: ";
     Cap= input(prompt,"s"); Cap=strcat('Cap size and #channels : ',cellstr(Cap));
 end
 %% notes
-if strcmpi(notes,'Notes:') || strlength(notes)>90
+if strcmpi(notes,'Notes:')
     prompt = "Please copy past all the text from the Notes here: ";
     notes= input(prompt,"s");
-    
+end
+if  strlength(notes)>90
     if strlength(notes)>90 %checking if it fits in the figure (+90 chr goes over the edge)
         start=1;notes_temp=cellstr(notes')';notes_temp_2={};length_notes=ceil(strlength(notes)/80)*80;
         for i=1:length(notes_temp) %to stop the spaces from being deleted
@@ -208,9 +209,9 @@ if strcmpi(notes,'Notes:') || strlength(notes)>90
             end
         end
         notes=notes_temp_2; %Notes are now 80chr but with enters at the end so it still fits, if more than 10 lines, it won't fit
-else 
-    notes=['Notes: ', notes];
-end
+    else
+        notes=['Notes: ', notes];
+    end
 end
 %% vision and hearing
 vision=[];hz500=' 500   Hz:  dB dB ';hz1000=' 1000 Hz:   dB  dB';hz2000=' 2000 Hz:   dB  dB';hz4000=' 4000 Hz:   dB  dB';
@@ -236,7 +237,7 @@ if contains(readme_1,'Vision Test:')
     vision=string(vision);
 end
 
-if isempty(vision) || contains(readme_1,'20/  20/')
+if isempty(vision) || contains(readme_1,'20/  20/') || strlength(vision)>20
     prompt = "Vision score left eye: ";
     left_eye= input(prompt,"s");
     prompt = "Vision score right eye: ";
@@ -244,24 +245,24 @@ if isempty(vision) || contains(readme_1,'20/  20/')
     prompt = "Vision score both eyes: ";
     both_eye= input(prompt,"s");
     vision=strcat(left_eye, " ",right_eye," ",both_eye);
-else
-    if strcmp(string(hz500), "500Hz:dB  dB")
+end 
+    if strcmp(string(hz500), "500Hz:dB  dB") || strlength(hz500)>20
         prompt = "500hz hearing test results (left ear/ Right ear): ";
         hz500= input(prompt,"s"); hz500=strcat(' 500   Hz   : ',cellstr(hz500));
     end
-    if strcmp(string(hz1000), "1000Hz:dB  dB")
+    if strcmp(string(hz1000), "1000Hz:dB  dB") || strlength(hz1000)>24
         prompt = "1000hz hearing test results (left ear/ Right ear): ";
         hz1000= input(prompt,"s"); hz1000=strcat(' 1000 Hz   : ',cellstr(hz1000));
     end
-    if  strcmp(string(hz2000), "2000Hz:dB  dB")
+    if  strcmp(string(hz2000), "2000Hz:dB  dB") || strlength(hz2000)>24
         prompt = "2000hz hearing test results (left ear/ Right ear): ";
         hz2000= input(prompt,"s"); hz2000=strcat(' 2000 Hz   : ',cellstr(hz2000));
     end
-    if strcmp(string(hz4000), "4000Hz:dB  dB")
+    if strcmp(string(hz4000), "4000Hz:dB  dB") || strlength(hz4000)>24
         prompt = "4000hz hearing test results (left ear/ Right ear): ";
         hz4000= input(prompt,"s"); hz4000=strcat(' 4000 Hz   : ',cellstr(hz4000));
     end
-end
+
 EEG.notes=notes;
 EEG.vision_info=" Left     Right Both (vision scores)";hearing_info= " Frequency Left Right";
 EEG.vision=vision; EEG.hearing_info=hearing_info; EEG.hz500=hz500; EEG.hz1000=hz1000; EEG.hz2000=hz2000; EEG.hz4000=hz4000;
