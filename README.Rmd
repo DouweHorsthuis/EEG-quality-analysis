@@ -33,6 +33,7 @@ Made by [Douwe Horsthuis](https://github.com/DouweHorsthuis/) as part of the:
     -   [eBridge](#ebridge)
     -   [Edf2Mat](#edf2mat)
     -   [newtimef](#newtimef)
+    -   [edf_to_fig](#edf_to_fig)
 4.  [Notes, shortcommings upcoming additions](#notes-shortcommings-upcoming-additions)
 
 ## About the project
@@ -146,10 +147,13 @@ As mentioned [above](#readme-files-and-promts) we use readme files in the lab to
 
 ### Edf2Mat
 
-We use the `Edf2Mat` function to transform our eye tracking files (collected with SR-research's Eyelink-1000 eye tracker system) and turn it into a heat map of where the participant was looking on the screen.
+We use the `Edf2Mat` function to transform our eye tracking files (collected with SR-research's Eyelink-1000 eye tracker system) and turn it into a heat map of where the participant was looking on the screen.  
+  
+### edf_to_fig
+While we still use `EDF2Mat` to load the .edf files into MATLAB, we use a combination of their functions in `edf_to_fig`. `edf_to_fig` only needs the filepath to the .edf files. These need to be in separate folders per participant, because we loop through all the files in the folder and merge all files ending in .edf. After we have use parts of the code from different functions from `Edf2Mat` to create a heatmap that shows us where the participant was looking for the whole of the paradigm. 
 
 ### newtimef
-Because it is a native EEGLAB function [all the explanation can be found here](https://eeglab.org/tutorials/08_Plot_data/Time-Frequency_decomposition.html). However, it is a new addition to the pipeline that might still need some extra testing on our side **so please use with caution and report bugs**. For now it works on 1 channel only, where it does a time frequency analysis for the length of your epochs. If you have 1 condition, you will be prompted this question, you will only get one plot. If you have 2, you will get a plot for both and a difference plot. If you have more, you will get an error because this is not possible for now. Further more, **be aware that if you have multiple bins in your binlist, the first one or first 2 will be selected and plotted, depended on how many conditions you chose**. 
+Because `newtimef` is a native EEGLAB function [all the explanation can be found here](https://eeglab.org/tutorials/08_Plot_data/Time-Frequency_decomposition.html). However, it is a new addition to the pipeline that might still need some extra testing on our side **so please use with caution and report bugs**. For now it works on 1 channel only, where it does a time frequency analysis for the length of your epochs. If you have 1 condition, you will be prompted this question, you will only get one plot. If you have 2, you will get a plot for both and a difference plot. If you have more, you will get an error because this is not possible for now. Further more, **be aware that if you have multiple bins in your binlist, the first one or first 2 will be selected and plotted, depended on how many conditions you chose**. 
 
 ## Notes, shortcommings upcoming additions
 

@@ -1,7 +1,7 @@
 EEG quality analysis pipeline
 ================
 Douwe Horsthuis
-2022-09-01
+2022-09-06
 
 [![Contributors](https://img.shields.io/github/contributors/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/graphs/contributors)
 [![Forks](https://img.shields.io/github/forks/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/network/members)
@@ -37,6 +37,7 @@ the:
     -   [eBridge](#ebridge)
     -   [Edf2Mat](#edf2mat)
     -   [newtimef](#newtimef)
+    -   [edf_to_fig](#edf_to_fig)
 4.  [Notes, shortcommings upcoming
     additions](#notes-shortcommings-upcoming-additions)
 
@@ -234,9 +235,21 @@ We use the `Edf2Mat` function to transform our eye tracking files
 (collected with SR-research’s Eyelink-1000 eye tracker system) and turn
 it into a heat map of where the participant was looking on the screen.
 
+### edf_to_fig
+
+While we still use `EDF2Mat` to load the .edf files into MATLAB, we use
+a combination of their functions in `edf_to_fig`. `edf_to_fig` only
+needs the filepath to the .edf files. These need to be in separate
+folders per participant, because we loop through all the files in the
+folder and merge all files ending in .edf. After we have use parts of
+the code from different functions from `Edf2Mat` to create a heatmap
+that shows us where the participant was looking for the whole of the
+paradigm.
+
 ### newtimef
 
-Because it is a native EEGLAB function [all the explanation can be found
+Because `newtimef` is a native EEGLAB function [all the explanation can
+be found
 here](https://eeglab.org/tutorials/08_Plot_data/Time-Frequency_decomposition.html).
 However, it is a new addition to the pipeline that might still need some
 extra testing on our side **so please use with caution and report
