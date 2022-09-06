@@ -188,8 +188,6 @@ end
 if strcmpi(notes,'Notes:')
     prompt = "Please copy past all the text from the Notes here: ";
     notes= input(prompt,"s");
-end
-if  strlength(notes)>90
     if strlength(notes)>90 %checking if it fits in the figure (+90 chr goes over the edge)
         start=1;notes_temp=cellstr(notes')';notes_temp_2={};length_notes=ceil(strlength(notes)/80)*80;
         for i=1:length(notes_temp) %to stop the spaces from being deleted

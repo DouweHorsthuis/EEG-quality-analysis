@@ -13,10 +13,11 @@ load_path    = 'path to your data'; %will open individual folders based on subje
 save_path    = 'general place to save data'; %where will you save the data (something like 'C:\data\')
 binlist_location='path to your binlist';
 binlist_name='name.txt'; %name of the text file with your bins
+plotting_bins=start:end; %the bins that should become ERPs
 rt_binlist = 'name_rt.txt'; %name of the reaction time binlist
 rt_plot_n=start:end; %which RT bins do you want to plot together (can only plot one group)
-plotting_bins=start:end; %the bins that should become ERPs
 channels_names={'channelname'}; %channels that you want plots for (
+time_fq_chn={};
 colors={'color+typeofline' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
 downsample_to=; % what is the sample rate you want to downsample to
 lowpass_filter_hz=; %50hz filter
@@ -46,6 +47,9 @@ if strcmpi(tf,'yes')
     end
     prompt = "Should the report skip the raw data, Eye tracking, or ERPS? (raw/erp/ET): ";
     raw_erps_et= input(prompt,"s");
+    if length(time_fq_chn)>1
+        error('You can only do time frequency analysis on 1 channel please choose only one')
+    end
 else
     raw_erps_et=[];
 end
@@ -241,7 +245,7 @@ for s = 1:length(subject_list)
     ERP = pop_savemyerp(ERP, 'erpname', [subject_list{s} '.erp'], 'filename', [subject_list{s} '.erp'], 'filepath', save_path_indv); %saving a.ERP file
     ERP = pop_loaderp( 'filename', [subject_list{s} '.erp'], 'filepath', save_path_indv );
     %channelnames to numbers
-    channels=zeros(1,length(channels_names)); time_fq_chn_n=zeros(1,length(time_fq_chn));
+    channels=zeros(1,length(channels_names));
     for i = 1:length(channels_names)
         for ii=1:length(EEG.chanlocs)
             if strcmpi(channels_names(i), EEG.chanlocs(ii).labels)
@@ -249,14 +253,17 @@ for s = 1:length(subject_list)
             end
         end
     end
-    for i = 1:length(time_fq_chn)
-        for ii=1:length(EEG.chanlocs)
-            if strcmpi(time_fq_chn(i), EEG.chanlocs(ii).labels)
-                time_fq_chn_n(i)=ii;
+    if ~isempty(time_fq_chn)
+            time_fq_chn_n=zeros(1,length(time_fq_chn));
+            for i = 1:length(time_fq_chn)
+                for ii=1:length(EEG.chanlocs)
+                    if strcmpi(time_fq_chn(i), EEG.chanlocs(ii).labels)
+                        time_fq_chn_n(i)=ii;
+                    end
+                    
+                end
             end
-            
         end
-    end
     
     
     
