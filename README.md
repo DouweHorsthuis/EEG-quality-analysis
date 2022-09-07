@@ -1,7 +1,7 @@
 EEG quality analysis pipeline
 ================
 Douwe Horsthuis
-2022-09-06
+2022-09-07
 
 [![Contributors](https://img.shields.io/github/contributors/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/graphs/contributors)
 [![Forks](https://img.shields.io/github/forks/DouweHorsthuis/EEG-quality-analysis.svg?style=plastic)](https://github.com/DouweHorsthuis/EEG-quality-analysis/network/members)
@@ -266,11 +266,12 @@ on how many conditions you chose**.
 
 ### Shortcommings and upcoming additions
 
-**Eye tracking** We are currently only able to load 1 EDF file per
-participant and turn this into a heat map. This means that we can only
-see where the participant was looking for a part of the experiment. We
-hope to update this by finding a way to merge these files in Matlab
-while still being able to create a heat map.
+Please let us know if you notice anything that does not work. So far we
+have made the following updates:  
+1- including possible time frequency analysis 2- plotting the heatmap of
+all eye tracking files 3- fixing the
+`[EEG]=readme_to_EEG(EEG,readme_yn,data_path,save_path_indv,subject_list{s});`
+function that had minor issues.
 
 ### Notes
 

@@ -1,5 +1,5 @@
 % EEGLAB merge sets, and creates .set file
-% by Douwe Horsthuis updated on 8/10/2022
+% by Douwe Horsthuis updated on 9/7/2022
 % When running it for the first time for any new paradigm:
 % if crash says : Error in A_merge_sets (line 38)
 %            EEG = pop_biosig([data_path  subject_list{s} '_' filename '_' num2str(bdf_bl) '.bdf']);
