@@ -1,6 +1,5 @@
 % EEGLAB merge sets, and creates .set file
-% by Douwe Horsthuis updated on 8/10/2022
-% Specifically for F.A.S.T.
+% by Douwe Horsthuis updated on 9/7/2022
 % if crash says : Error in A_merge_sets (line 38)
 %            EEG = pop_biosig([data_path  subject_list{s} '_' filename '_' num2str(bdf_bl) '.bdf']);
 % Double check the name you gave, that is where the mistake is
@@ -16,8 +15,8 @@ binlist_name='name.txt'; %name of the text file with your bins
 plotting_bins=start:end; %the bins that should become ERPs
 rt_binlist = 'name_rt.txt'; %name of the reaction time binlist
 rt_plot_n=start:end; %which RT bins do you want to plot together (can only plot one group)
-channels_names={'channelname'}; %channels that you want plots for (
-time_fq_chn={};
+channels_names={'channelname'}; %channels that you want ERP plots for
+time_fq_chn={}; % channels that you want your time frequency analysis to run on
 colors={'color+typeofline' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
 downsample_to=; % what is the sample rate you want to downsample to
 lowpass_filter_hz=; %50hz filter
