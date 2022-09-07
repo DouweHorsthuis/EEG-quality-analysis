@@ -185,7 +185,7 @@ if strcmpi(Cap,'Cap:') || strlength(Cap)>50
     Cap= input(prompt,"s"); Cap=strcat('Cap size and #channels : ',cellstr(Cap));
 end
 %% notes
-if strcmpi(notes,'Notes:')
+if strcmpi(notes,'Notes:') || strlength(notes)>90
     prompt = "Please copy past all the text from the Notes here: ";
     notes= input(prompt,"s");
     if strlength(notes)>90 %checking if it fits in the figure (+90 chr goes over the edge)
