@@ -43,67 +43,67 @@ if strcmpi(readme_yn,'yes')
             pres_version=extractBetween(readme_1, '~Run in ', '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
         end
         %  for i=1:length(readme_1)
-        if contains(readme_1,'Date')
+        if contains(readme_1,'Date') && contains(readme_1,'Gender')
             date_1 = extractBetween(readme_1,'Date:', 'Gender');
             date_1 = strtrim(date_1); %deleting tabs, then deleting spaces
             date_1=strcat('Date: ',date_1);
         end
-        if contains(readme_1,'Age:')
+        if contains(readme_1,'Age:') && contains(readme_1,'Hand')
             Age=extractBetween(readme_1, 'Age:', 'Hand');
             Age = strtrim(Age);% deleting tabs, then deleting spaces
             Age=strcat('Age: ',Age);
         end
-        if contains(readme_1,'Gender:')
+        if contains(readme_1,'Gender:') && contains(readme_1,'Age:')
             Sex=extractBetween(readme_1, 'Gender:', 'Age:');
             Sex = strtrim(Sex);% deleting tabs, then deleting spaces
             Sex = strcat('Sex: ',Sex);
         end
-        if contains(readme_1,'Sex:')
+        if contains(readme_1,'Sex:') && contains(readme_1,'Age:')
             Sex=extractBetween(readme_1, 'Sex:', 'Age:');
             Sex = strtrim(Sex);% deleting tabs, then deleting spaces
             Sex = strcat('Sex: ',Sex);
         end
-        if contains(readme_1,'Glasses')
+        if contains(readme_1,'Glasses') && contains(readme_1,'Medic')
             glasses=extractBetween(readme_1, 'contacts:', 'Medic');
             glasses = strtrim(glasses);% deleting tabs, then deleting spaces
             glasses=strcat('Glasses or contacts: ',glasses);
         end
-        if contains(readme_1,'Handedness:')
-            Handedness=extractBetween(readme_1, 'Handedness:', 'Tempe');
-            Handedness = strtrim(Handedness);% deleting tabs, then deleting spaces
-            Handedness=strcat('Handedness: ',Handedness);
-        end
-        if contains(readme_1,'Medication:')
+            if contains(readme_1,'Handedness:')  && contains(readme_1,'Tempe')
+                Handedness=extractBetween(readme_1, 'Handedness:', 'Tempe');
+                Handedness = strtrim(Handedness);% deleting tabs, then deleting spaces
+                Handedness=strcat('Handedness: ',Handedness);
+            end
+        if contains(readme_1,'Medication:')  && contains(readme_1,'Height')
             Medication=extractBetween(readme_1, 'Medication:', 'Height');
             Medication = strtrim(Medication);% deleting tabs, then deleting spaces
             Medication=strcat('Medication: ',Medication);
         end
-        if contains(readme_1,'Exp:')
+        if contains(readme_1,'Exp:') && contains(readme_1,'booth')
             Exp=extractBetween(readme_1, 'Exp:', 'booth');
             Exp = strtrim(Exp);% deleting tabs, then deleting spaces
             Exp=strcat('Experimenter: ',Exp);
         end
-        if contains(readme_1,'Externals:')
+        if contains(readme_1,'Externals:')&& contains(readme_1,'(normal')
             Externals=extractBetween(readme_1, 'Externals:', '(normal');
             Externals = strtrim(Externals);% deleting tabs, then deleting spaces
             Externals=strcat('Externals: ',Externals);
         end
-        if contains(readme_1,'Light:')
+        if contains(readme_1,'Light:') && contains(readme_1,'(normal')
             Light=extractBetween(readme_1, 'Light:', '(normal');
             Light = strtrim(Light);% deleting tabs, then deleting spaces
             Light=strcat('Light: ',Light);
         end
-        if contains(readme_1,'Screen:')
+        if contains(readme_1,'Screen:') && contains(readme_1,'(')
             Screen=extractBetween(readme_1, 'Screen:', '(');
             Screen = strtrim(Screen);% deleting tabs, then deleting spaces
             Screen=strcat('Screen distance (cm): ',Screen);
         end
-        if contains(readme_1,'Cap:')
+        if contains(readme_1,'Cap:') && contains(readme_1,'(color + channels)')
             Cap=extractBetween(readme_1, 'Cap:', '(color + channels)');
             Cap = strtrim(Cap);% deleting tabs, then deleting spaces
             Cap=strcat('Cap size and #channels : ',Cap);
         end
-        if contains(readme_1,'notes:')
+        if contains(readme_1,'notes:') && contains(readme_1,'Save as')
             notes = extractBetween(readme_1,'notes:', 'Save as');
             notes = strtrim(notes); %deleting tabs, then deleting spaces
             notes=strcat('Notes: ',notes);
@@ -112,32 +112,32 @@ if strcmpi(readme_yn,'yes')
     end
 end
 
-if isempty(pres_version)
+if  isempty(pres_version)
     prompt = "What Version of Presentation was used?";
     pres_version= input(prompt,"s"); pres_version=strcat('Presentation Version:',cellstr(pres_version));
 end
-if strcmpi(date_1,'Date:') || strlength(date_1)>20
+if  isempty(date_1) || strcmpi(date_1,'Date:') || strlength(date_1)>20
     prompt = "Date of data collection (mm/dd/yyyy): ";
     date_1= input(prompt,"s"); date_1=strcat('Date:',cellstr(date_1));
 end
-if strcmpi(Age,'Age:') || strlength(Age)>10
+if  isempty(Age) || strcmpi(Age,'Age:') || strlength(Age)>10
     prompt = "Age of participant: ";
     Age= input(prompt,"s"); Age=strcat('Age: ',cellstr(Age));
 end
-if strcmpi(Sex,'Sex:') || strlength(Sex)>15
+if isempty(Sex) ||strcmpi(Sex,'Sex:') || strlength(Sex)>15
     prompt = "Sex of participant: ";
     Sex= input(prompt,"s"); Sex=strcat('Gender: ', cellstr(Sex));
 end
-if strcmpi(Handedness,'Handedness:') || strlength(Handedness)>25
+if  isempty(Handedness) || strcmpi(Handedness,'Handedness:') || strlength(Handedness)>25 
     prompt = "Handedness: ";
     Handedness= input(prompt,"s"); Handedness=strcat('Handedness: ',cellstr(Handedness));
 end
-if strcmpi(glasses,'Glasses or contacts:') || strlength(glasses)>35
+if isempty(glasses) || strcmpi(glasses,'Glasses or contacts:') || strlength(glasses)>35
     prompt = "glasses or contacts: ";
     glasses= input(prompt,"s"); glasses=strcat('Glasses or contacts: ', cellstr(glasses));
 end
 
-if strcmpi(Medication,'Medication:') || strlength(Medication)>40
+if isempty(Medication) || strcmpi(Medication,'Medication:') || strlength(Medication)>40
     prompt = "Medication:";
     Medication= input(prompt,"s");
     if strlength(Medication)>40 %checking if it fits in the figure (+40 chr goes over the edge)
@@ -164,28 +164,28 @@ if strcmpi(Medication,'Medication:') || strlength(Medication)>40
 else
     Medication=['Medication: ',Medication];
 end
-if strcmpi(Exp,'Exp:') || strlength(Exp)>20
+if isempty(Exp) || strcmpi(Exp,'Exp:') || strlength(Exp)>20
     prompt = "Experimenter: ";
     Exp= input(prompt,"s"); Exp=strcat('Experimenter: ',cellstr(Exp));
 end
-if strcmpi(Externals,'Externals:') || strlength(Externals)>25
+if isempty(Externals) || strcmpi(Externals,'Externals:') || strlength(Externals)>25
     prompt = "Externals: ";
     Externals= input(prompt,"s"); Externals=strcat('Externals: ',cellstr(Externals));
 end
-if strcmpi(Light,'Light:') || strlength(Light)>10
+if  isempty(Externals)|| strcmpi(Light,'Light:') || strlength(Light)>10
     prompt = "Light on/off: ";
     Light= input(prompt,"s"); Light=strcat('Light: ',cellstr(Light));
 end
-if strcmpi(Screen,'Screen:') || strlength(Screen)>30
+if  isempty(Screen)|| strcmpi(Screen,'Screen:') || strlength(Screen)>30
     prompt = "Screen distance (cm): ";
     Screen= input(prompt,"s"); Screen=strcat('Screen distance (cm): ',cellstr(Screen));
 end
-if strcmpi(Cap,'Cap:') || strlength(Cap)>50
+if  isempty(Cap)|| strcmpi(Cap,'Cap:') || strlength(Cap)>50
     prompt = "Cap size and # channels: ";
     Cap= input(prompt,"s"); Cap=strcat('Cap size and #channels : ',cellstr(Cap));
 end
 %% notes
-if strcmpi(notes,'Notes:') || strlength(notes)>90
+if  isempty(notes)|| strcmpi(notes,'Notes:') || strlength(notes)>90
     prompt = "Please copy past all the text from the Notes here: ";
     notes= input(prompt,"s");
     if strlength(notes)>90 %checking if it fits in the figure (+90 chr goes over the edge)
@@ -214,7 +214,7 @@ end
 %% vision and hearing
 vision=[];hz500=' 500   Hz:  dB dB ';hz1000=' 1000 Hz:   dB  dB';hz2000=' 2000 Hz:   dB  dB';hz4000=' 4000 Hz:   dB  dB';
 
-if contains(readme_1,'Hearingtest')
+if contains(readme_1,'Hearingtest') && contains(readme_1,'500hz') && contains(readme_1,'1000hz') && contains(readme_1,'2000hz') && contains(readme_1,'4000hz')
     hz500=extractBetween(readme_1, '500hz', '1000hz');
     hz500=regexprep(strtrim(hz500), '\t', ' ');% deleting whitespace, tabs, etc
     hz500=strcat('500Hz: ',hz500);
@@ -228,7 +228,7 @@ if contains(readme_1,'Hearingtest')
     hz4000=regexprep(strtrim(hz4000), '\t', ' ');% deleting whitespace, tabs, etc
     hz4000=strcat('4000Hz: ',hz4000);
 end
-if contains(readme_1,'Vision Test:')
+if contains(readme_1,'Vision Test:') && contains(readme_1,'notes:')   && contains(readme_1,'vision test is not done on EEG day)') 
     vision=extractBetween(readme_1, 'vision test is not done on EEG day)', 'notes:');
     vision = strtrim(vision);% deleting tabs, then deleting spaces
     vision = regexprep(vision, '\t', ' '); vision = regexprep(vision, '  ', ' '); %cell  {' 20/12 20/32 20/14 '}
@@ -244,19 +244,19 @@ if isempty(vision) || contains(readme_1,'20/  20/') || strlength(vision)>20
     both_eye= input(prompt,"s");
     vision=strcat(left_eye, " ",right_eye," ",both_eye);
 end 
-    if strcmp(string(hz500), "500Hz:dB  dB") || strlength(hz500)>20
+    if isempty(hz500) || strcmp(string(hz500), "500Hz:dB  dB") || strlength(hz500)>20
         prompt = "500hz hearing test results (left ear/ Right ear): ";
         hz500= input(prompt,"s"); hz500=strcat(' 500   Hz   : ',cellstr(hz500));
     end
-    if strcmp(string(hz1000), "1000Hz:dB  dB") || strlength(hz1000)>24
+    if isempty(hz1000) ||strcmp(string(hz1000), "1000Hz:dB  dB") || strlength(hz1000)>24
         prompt = "1000hz hearing test results (left ear/ Right ear): ";
         hz1000= input(prompt,"s"); hz1000=strcat(' 1000 Hz   : ',cellstr(hz1000));
     end
-    if  strcmp(string(hz2000), "2000Hz:dB  dB") || strlength(hz2000)>24
+    if  isempty(hz2000) || strcmp(string(hz2000), "2000Hz:dB  dB") || strlength(hz2000)>24
         prompt = "2000hz hearing test results (left ear/ Right ear): ";
         hz2000= input(prompt,"s"); hz2000=strcat(' 2000 Hz   : ',cellstr(hz2000));
     end
-    if strcmp(string(hz4000), "4000Hz:dB  dB") || strlength(hz4000)>24
+    if isempty(hz4000) || strcmp(string(hz4000), "4000Hz:dB  dB") || strlength(hz4000)>24
         prompt = "4000hz hearing test results (left ear/ Right ear): ";
         hz4000= input(prompt,"s"); hz4000=strcat(' 4000 Hz   : ',cellstr(hz4000));
     end
