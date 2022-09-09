@@ -214,7 +214,9 @@ The readme file is loaded as on big string and we look for specific
 parts of the text to find the info we are looking for using MATLABS
 `extractBetween` function. This means that if we move the readme file
 around and change the template, we won’t be able to extract data
-efficiently without updating this function.
+efficiently without updating this function. The readme file should be using this template
+![image](https://user-images.githubusercontent.com/64816053/189417741-250fb44e-3661-4a3e-a407-85561e9fa21d.png)
+
 
 ### eBridge
 
