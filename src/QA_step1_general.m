@@ -6,25 +6,26 @@
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'ID'};% The ID part of the BDF file (e.g. 1111_fast_1.bdf = '1111')
-experiment_title='title';
-load_path    = 'path to your data'; %will open individual folders based on subject ID
-save_path    = 'general place to save data'; %where will you save the data (something like 'C:\data\')
-binlist_location='path to your binlist';
-binlist_name='name.txt'; %name of the text file with your bins
-plotting_bins=start:end; %the bins that should become ERPs
-rt_binlist = 'name_rt.txt'; %name of the reaction time binlist
-rt_plot_n=start:end; %which RT bins do you want to plot together (can only plot one group)
-channels_names={'channelname'}; %channels that you want ERP plots for
-time_fq_chn={}; % channels that you want your time frequency analysis to run on
-colors={'color+typeofline' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
-downsample_to=; % what is the sample rate you want to downsample to
-lowpass_filter_hz=; %50hz filter
-highpass_filter_hz=; %1hz filter
-epoch_time = [start-of-epoch end-of-epoch];
-baseline_time = [start-of-baseline end-of-baseline];
-low_fq= ;%lowest frequency for time frequency plot (if you go lower than 3hz you will need a lot of data)
-high_fq=; %highest frequency for time freq plot, should never be more than half your sampling or half your low pass
+subject_list = {'10593'};% The ID part of the BDF file (e.g. 1111_fast_1.bdf = '1111')
+experiment_title='Beep-Flash';
+load_path    = '\\data.einsteinmed.org\users\CNL Lab\Data_new\Beep-Flash_sfari\'; %will open individual folders based on subject ID
+save_path    = '\\data.einsteinmed.org\users\CNL Lab\Analysis\SFARI\Beep-Flash_sfari\'; %where will you save the data (something like 'C:\data\')
+binlist_location='\\data.einsteinmed.org\users\CNL Lab\Analysis\SFARI\Beep-Flash_sfari\';
+binlist_name='binlist_bf.txt'; %name of the text file with your bins
+plotting_bins=1:2; %the bins that should become ERPs
+rt_binlist = 'binlist_bf_rt.txt'; %name of the reaction time binlist
+rt_plot_n=1:6; %which RT bins do you want to plot together (can only plot one group)
+channels_names={'P1' 'P3' 'P5' 'P7' 'P9' 'PO7' 'PO3' 'O1'}; %channels that you want ERP plots for
+time_fq_chn={'P1' 'P3' 'P5' 'P7' 'P9' 'PO7' 'PO3' 'O1'}; % channels that you want your time frequency analysis to run on
+colors={'b-' 'm-' }; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
+downsample_to=512; % what is the sample rate you want to downsample to
+lowpass_filter_hz=40; %50hz filter
+highpass_filter_hz=0.5; %1hz filter
+epoch_time = [-600 2500];
+baseline_time = [-100 0];
+re_ref={'fpz'};
+low_fq= 3;%lowest frequency for time frequency plot (if you go lower than 3hz you will need a lot of data)
+high_fq= 50; %highest frequency for time freq plot, should never be more than half your sampling or half your low pass
 %% Questions you need to answer in the command window before starting
 prompt = "What is the paradigm specific name for the bdf files (e.g. fast when the whole file is 10000_fast_1.bdf)?: ";
 p_name= input(prompt,"s");
@@ -46,9 +47,13 @@ if strcmpi(tf,'yes')
     end
     prompt = "Should the report skip the raw data, Eye tracking, or ERPS? (raw/erp/ET): ";
     raw_erps_et= input(prompt,"s");
-    if length(time_fq_chn)>1
-        error('You can only do time frequency analysis on 1 channel please choose only one')
-    end
+     if length(time_fq_chn)>1
+         prompt="You can only do time frequency analysis on 1 channel please choose only one, do you want an avg of the channels you selected?";
+         avg_ch=input(prompt,"s");
+         if ~strcmpi(avg_ch,yes)
+         error('You can only do time frequency analysis on 1 channel please choose only one')
+         end
+     end
 else
     raw_erps_et=[];
 end
@@ -186,6 +191,7 @@ for s = 1:length(subject_list)
     pca = EEG.nbchan-1; %the PCA part of the ICA needs stops the rank-deficiency
     EEG = pop_interp(EEG, EEG.orgchan, 'spherical');%interpolates the data
     EEG = pop_reref( EEG, []);%avg ref
+    ref={'Avg ref'};
     EEG = eeg_checkset( EEG );
     EEG = pop_runica(EEG, 'extended',1,'interupt','on','pca',pca); %using runica function, with the PCA part
     EEG = eeg_checkset( EEG );
@@ -229,10 +235,17 @@ for s = 1:length(subject_list)
             EEG.event(i).type = char(['condition ' new]); %making sure that it's edf fixed first
         end
     end
+    if ~isempty(re_ref)
+    ref=['first ', char(ref),  ' later ', char(re_ref)];    
+    EEG = pop_reref( EEG, [re_ref]);
+    end
+    
     EEG  = pop_creabasiceventlist( EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' } );
     EEG = eeg_checkset( EEG );
     EEG = pop_saveset( EEG, 'filename',[subject_list{s} '_events.set'],'filepath', save_path_indv);
+    
     EEG  = pop_binlister( EEG , 'BDF', [binlist_location binlist_name], 'IndexEL',  1, 'SendEL2', 'EEG', 'Voutput', 'EEG' );
+   
     EEG = pop_epochbin( EEG , epoch_time,  baseline_time); %epoch size and baseline size
     %deleting bad epochs (need erplab plugin for this)
     EEG= pop_artmwppth( EEG , 'Channel', 1:EEG.nbchan, 'Flag',  1, 'Threshold',  150, 'Twindow', epoch_time, 'Windowsize',  200, 'Windowstep',  200 );% to flag bad epochs
@@ -264,7 +277,7 @@ for s = 1:length(subject_list)
             end
         end
     
-    
+     
     
     erp_square=[ceil(sqrt(length(channels_names))) ceil(sqrt(length(channels_names)))]; %for the subplots
     ERP = pop_ploterps( ERP,  plotting_bins, channels , 'AutoYlim', 'on', 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box',...
@@ -281,7 +294,11 @@ for s = 1:length(subject_list)
                     bin1=EEG.event(i).binlabel;
                 end
             end
+            
             EEG_1 = pop_selectevent( EEG, 'type',{bin1},'deleteevents','off','deleteepochs','on','invertepochs','off');
+             if strcmpi(avg_ch,'yes')
+       EEG_1.data=mean(EEG_1.data(channels,:,:));
+    end
             figure();[ersp,powbaseCommon,times,freqs,erspboot,itcboot, tfdata] =  newtimef(EEG_1.data(time_fq_chn_n,:,:),...
                 EEG.pnts,...%frames (uses the total amount of sample points in the data
                 [EEG.xmin EEG.xmax]*1000,... %using the epoch times of the data *1000 to go from s to ms
@@ -303,13 +320,18 @@ for s = 1:length(subject_list)
             ersp_title=[ERP.bindescr,strjoin([ERP.bindescr(1) , 'minus', ERP.bindescr(2)])];
             EEG_1 = pop_selectevent( EEG, 'type',{bin1},'deleteevents','off','deleteepochs','on','invertepochs','off');
             EEG_2 = pop_selectevent( EEG, 'type',{bin2},'deleteevents','off','deleteepochs','on','invertepochs','off');
+            if strcmpi(avg_ch,'yes')
+                EEG_1.data=mean(EEG_1.data(channels,:,:));
+                EEG_2.data=mean(EEG_2.data(channels,:,:));
+                time_fq_chn_n=1;
+            end
+    
             [ersp,powbaseCommon,times,freqs,erspboot,itcboot, tfdata] =  newtimef({EEG_1.data(time_fq_chn_n,:,:), EEG_2.data(time_fq_chn_n,:,:)},...
                 EEG.pnts,...%frames (uses the total amount of sample points in the data
                 [EEG.xmin EEG.xmax]*1000,... %using the epoch times of the data *1000 to go from s to ms
                 EEG.srate,... %finds the sampling rate in the data
                 [3 7],... % 3 7 seems like a good suggestion, the wavelets should give a good balance between amount of cycles + is suggested by mike x cohen book
                 'freqs', [low_fq high_fq],... %we care for alpha 8-12hz so this should be enough
-                'alpha', 0.05,...%If non-0, compute two-tailed permutation significance probability level. Show non-signif. output values as green.                            {default: 0}
                 'commonbase', 'on',... %this is default, not sure how/why to set the baseline
                 'plotitc' , 'off',...
                 'title', ersp_title);%
@@ -416,7 +438,8 @@ for s = 1:length(subject_list)
         "Highpass filter: " + EEG.filter.highpass_filter_hz(1) + "Hz";...
         "Data deleted: " + num2str(EEG.deleteddata) + "%";...
         "Amount bad chan: " + string(length(EEG.del_chan));...
-        "Amount bridged chan: " + string(length(EEG.bridged))]);
+        "Amount bridged chan: " + string(length(EEG.bridged));...
+        "Reference: " + string(ref)]);
     annotation('textbox', [0.1, 0.1, 0.1, 0.1], 'String',rt_string)
     annotation('textbox', [0.35, 0.1, 0.1, 0.1], 'String',amount_string);
     annotation('textbox', [0.55, 0.1, 0.1, 0.1], 'String',EEG.notes)
