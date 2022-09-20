@@ -195,12 +195,16 @@ if  isempty(notes)|| strcmpi(notes,'Notes:') || strlength(notes)>90
                 notes_temp{i}={' '};
             end
         end
+        if ~(rem(90,length_notes)==0)
+           length_notes= (ceil(length_notes/90))*90;
+        end
         for ii=80:80:length_notes %looks for 80 chr increments
             if start==1
                 notes_temp_2=[notes_temp_2,strcat('Notes: ', strcat(notes_temp{start:ii}))];
                 start=ii+1;
             elseif ii>strlength(notes) %making sure it will include the last bit
-                med_temp_2=[notes_temp_2,strcat(notes_temp{start:end})];
+                notes_temp_2=[notes_temp_2,strcat(notes_temp{start:end})];
+                break %since it goes to the end and we don't need more loops
             else
                 notes_temp_2=[notes_temp_2,strcat(notes_temp{start:ii})];
                 start=ii+1;
