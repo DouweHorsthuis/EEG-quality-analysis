@@ -7,11 +7,11 @@
 % ------------------------------------------------
 clear variables
 %% Update this for your computer and the participant you are running
-subject_list = {'11244'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
+subject_list = {'10400'};% '10260' '10314' '10508' '10520' '10708' '10769' '10846' '10876' '11244' '11576'}; %all the IDs for the indivual particpants
 experiment_title='title';
-load_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\data\'; %will open individual folders based on subject ID
-save_path    = 'C:\Users\dohorsth\Desktop\SFARI Behav\FAST\test\'; %where will you save the data (something like 'C:\data\')
-binlist_location='\\data.einsteinmed.org\users\CNL Lab\Analysis\SFARI\ASSR\';
+load_path    = '\\data.einsteinmed.org\users\CNL Lab\Data_new\F.A.S.T. Response task\'; %will open individual folders based on subject ID
+save_path    = '\\data.einsteinmed.org\users\CNL Lab\Analysis\SFARI\F.A.S.T. Response task\'; %where will you save the data (something like 'C:\data\')
+binlist_location='\\data.einsteinmed.org\users\CNL Lab\Analysis\SFARI\F.A.S.T. Response task\';
 binlist_name='binlist_fast.txt'; %name of the text file with your bins
 rt_binlist = 'binlist_fast_rt.txt'; %name of the reaction time binlist
 rt_plot_n=5:8; %which RT bins do you want to plot together (can only plot one group)
@@ -21,7 +21,7 @@ time_fq_chn={'Cz' 'pz'}; %only add a channel if you want to do time frequency an
 colors={'k-' , 'r-', 'g-' 'c-'}; %define colors of your ERPs (1 per bin), add - for solid line add -- for dashed line -. for dotted/dashed : for dotted
 downsample_to=256; % what is the sample rate you want to downsample to
 lowpass_filter_hz=50; %50hz filter
-highpass_filter_hz=1; %1hz filter
+highpass_filter_hz=0.1; %1hz filter
 epoch_time = [-100 500];
 baseline_time = [-50 0];
 low_fq= 3;

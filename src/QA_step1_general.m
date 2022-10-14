@@ -105,7 +105,7 @@ for s = 1:length(subject_list)
     end
     %% Adding participant information
     %step 1, using either the logfile if it exist, or promting you for data
-    [EEG]=readme_to_EEG(EEG,readme_yn,data_path,save_path_indv,subject_list{s});
+    [EEG]= readme_to_EEG(EEG, data_path);
     %step 2, adding some info from previously promted things
     EEG.subject = subject_list{s}; %subject ID
     EEG.org_n_bdf=n_bdf;
